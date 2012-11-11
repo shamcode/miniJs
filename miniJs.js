@@ -1,6 +1,5 @@
 
 
-
 /*
 * 
 * Init miniJs
