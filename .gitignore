@@ -5,8 +5,3 @@ bin-release/
 # Project property files
 .settings/
 .project
-
-# Ignore everything in this directory
-*
-# Except this file
-!.gitignore
