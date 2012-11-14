@@ -6,7 +6,7 @@
 * @this {miniJs}
 */
 
-miJs = miniJs = new function miniJs() {
+miJs = miniJs = new function () {
 	this.object = function (obj) {
 		return new jsObject(obj)
 	}
