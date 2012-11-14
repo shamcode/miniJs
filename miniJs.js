@@ -1,24 +1,12 @@
-
-
-/*
-* 
-* Init miniJs
-*
-* Create global Object miniJs
-*/
-
-miJs = miniJs = new miniJs()
-
-
 /*
 *
-* Create main object for collections
+* Create singleton for collections
 *
 * @constructor 
 * @this {miniJs}
 */
 
-function miniJs() {
+miJs = miniJs = new function miniJs() {
 	this.object = function (obj) {
 		return new jsObject(obj)
 	}
