@@ -103,8 +103,8 @@ function jsObject(currentObject) {
 	*
 	* Show all value of object in alert window
 	*
-	* @param {Array}   keyArray Array of keys
-	* @param {Boolean} showThis Show key-value, if it not in keyArray
+	* @param {Array}   [keyArray] Array of keys
+	* @param {Boolean} [showThis] Show key-value, if it not in keyArray
 	*/
 	this.alert = function (keyArray, showThis) {
 		var showString = ""
@@ -121,8 +121,8 @@ function jsObject(currentObject) {
 	*
 	* Set value in object. If key not found in object, it will add.
 	*
-	* @param {Object}  setValue    Object with value for seting
-	* @param {Boolean} ifUndefined Set value if current key in currentObject undefineded, else not seting
+	* @param {Object}  setValue      Object with value for seting
+	* @param {Boolean} [ifUndefined] Set value if current key in currentObject undefineded, else not seting
 	*/
 	this.set = function(setValue, ifUndefined) {
 		for (var i in setValue) 
@@ -172,7 +172,7 @@ function jsArray(currentArray) {
 	*
 	* Tests for the equality of the passed array
 	*
-	* @param {Array} arr
+	* @param {Array} arr Array for test
 	* @returns {Boolean} Result
 	*/
 	this.equal = function (arr) {
@@ -196,7 +196,7 @@ function jsArray(currentArray) {
 	* Iter run functions for all elements in array and return aray of result
 	*
 	* @param {Function} f Callback
-	* @returns {Array}
+	* @returns {Array} Results function f
 	*/
 	this.map = function(f) {
 		if (currentArray.map !== undefined) 
@@ -279,7 +279,7 @@ function jsFunction(currentFunction) {
 	/*
 	* Decorator caching functions
 	*
-	* @returns {Function} Function f with cache
+	* @returns {Function} Function currentFunction with cache
 	*/
 	this.cache = function () {
 	    var ret = function () {
@@ -299,8 +299,7 @@ function jsFunction(currentFunction) {
 	*
 	* Decorator logging function
 	*
-	* @param {Function} f Function
-	* @returns {Function} Function f with log
+	* @returns {Function} Function currentFunction with log
 	*/
 	this.log = function () {
 		var ret = function () {
