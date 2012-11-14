@@ -1,9 +1,8 @@
-/*
+/**
 *
 * Create singleton for collections
 *
 * @constructor 
-* @this {miniJs}
 */
 
 miJs = miniJs = new function () {
@@ -31,7 +30,7 @@ miJs = miniJs = new function () {
 
 
 
-/*
+/**
 * Create jsObject - collection functions for work with Objects in JS
 *
 * @constructor
@@ -43,7 +42,7 @@ function jsObject() {
 	//Object for work
 	this.currentObject = undefined
 	
-	/*
+	/**
 	* The object cloning
 	*
 	* @returns {Object} Object cloning
@@ -57,7 +56,7 @@ function jsObject() {
 		} (this.currentObject)
 	}
 
-	/*
+	/**
 	*
 	* Tests for the equality of the passed object
 	*
@@ -82,7 +81,7 @@ function jsObject() {
 		} (this.currentObject, obj)
 	}
 
-	/*
+	/**
 	*
 	* Tests for the occurrence of an object in an array
 	* 
@@ -95,7 +94,7 @@ function jsObject() {
 		return false
 	}
 
-	/*
+	/**
 	*
 	* Show all value of object in alert window
 	*
@@ -113,7 +112,7 @@ function jsObject() {
 		alert(showString)
 	}
 
-	/*
+	/**
 	*
 	* Set value in object. If key not found in object, it will add.
 	*
@@ -134,7 +133,7 @@ function jsObject() {
 				this.currentObject[i] = setValue[i]
 	}
 
-	/*
+	/**
 	*
 	* Set link to current object in miniJs.this
 	*/
@@ -144,7 +143,7 @@ function jsObject() {
 }
 
 
-/*
+/**
 *
 * Create jsArray - coolection functions for work with Array in Js
 *
@@ -156,7 +155,7 @@ function jsArray() {
 	//Array for work
 	this.currentArray = undefined
 
-	/*
+	/**
 	*
 	* The array cloning
 	*
@@ -166,7 +165,7 @@ function jsArray() {
 		return this.currentArray.slice(0)
 	}
 
-	/*
+	/**
 	*
 	* Tests for the equality of the passed array
 	*
@@ -189,7 +188,7 @@ function jsArray() {
 		alert (showString)
 	}
 
-	/*
+	/**
 	*
 	* Iter run functions for all elements in array and return aray of result
 	*
@@ -205,7 +204,7 @@ function jsArray() {
 		return result
 	}
 
-	/*
+	/**
 	*
 	* Creates a new array with all elements that pass the test implemented by the provided function.
 	* 
@@ -222,7 +221,7 @@ function jsArray() {
 		return result
 	}
 
-	/*
+	/**
 	*
 	* Creates a new array will all elemets and no repeat
 	*
@@ -247,7 +246,7 @@ function jsArray() {
 		return result
 	}
 
-	/*
+	/**
 	*
 	* Delete all element equal passed in array 
 	*
@@ -263,7 +262,7 @@ function jsArray() {
 
 
 
-/*
+/**
 *
 * Create jsFunction - collection functions for work with Function in JS
 *
