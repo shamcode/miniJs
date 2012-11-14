@@ -90,7 +90,7 @@ function jsObject() {
 	*/
 	this.in = function (array) {
 		for (var i in array) 
-			if (this.equal(array[i])) return true
+			if (this.equal(array[i])) return true;
 		return false
 	}
 
@@ -123,7 +123,7 @@ function jsObject() {
 		for (var i in setValue) 
 			if (ifUndefined && this.currentObject[i] !== undefined) 
 				continue
-			else if (typeof setValue[i] == 'object') {
+			if (typeof setValue[i] == 'object') {
 				if (this.currentObject[i] == undefined) 
 					this.currentObject[i] = setValue[i] instanceof Array ? [] : {}
 				miniJs.object(this.currentObject[i]).set(setValue[i])
@@ -173,7 +173,7 @@ function jsArray() {
 	* @returns {Boolean} Result
 	*/
 	this.equal = function (arr) {
-		return miJs.object(this.currentArray).equal(arr)
+		return miJs.object(this.currentArray).equal(arr);
 	}
 
 	/*
@@ -197,11 +197,11 @@ function jsArray() {
 	*/
 	this.map = function(f) {
 		if (this.currentArray.map !== undefined) 
-			return this.currentArray.map(f)
+			return this.currentArray.map(f);
 		var result = []
 		for (var i in this.currentArray)
-			result.push(f(this.currentArray[i]))
-		return result
+			result.push(f(this.currentArray[i]));
+		return result;
 	}
 
 	/**
@@ -230,18 +230,18 @@ function jsArray() {
 	this.uniq = function() {
 		var result = []
 		for (var el in this.currentArray) {
-			if (miJs.object(this.currentArray[el]).in(result))
-				continue
-			var count = 0
-			for (var i in this.currentArray) {
-				count += miJs.object(this.currentArray[el]).equal(this.currentArray[i]) ? 1 : 0
-				if (count > 1) {
-					result.push(this.currentArray[el])
-					break
+			if (!miJs.object(this.currentArray[el]).in(result)) {
+				var count = 0
+				for (var i in this.currentArray) {
+					count += miJs.object(this.currentArray[el]).equal(this.currentArray[i]) ? 1 : 0
+					if (count > 1) {
+						result.push(this.currentArray[el])
+						break
+					}
 				}
+				if (count == 1) 
+					result.push(this.currentArray[el])
 			}
-			if (count == 1) 
-				result.push(this.currentArray[el])
 		}
 		return result
 	}
@@ -272,7 +272,6 @@ function jsArray() {
 function jsFunction() {
 	
 	//Function for work
-
 	this.currentFunction = undefined
 	
 	/*
