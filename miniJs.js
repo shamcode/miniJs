@@ -6,22 +6,16 @@
 */
 
 miJs = miniJs = new function () {
-	var _jsObject = new jsObject()
 	this.object = function (obj) {
-		_jsObject.currentObject = obj
-		return _jsObject
+		return new jsObject(obj)
 	}
 				
-	var _jsFunction = new jsFunction()
 	this.function = function (f) {
-		_jsFunction.currentFunction = f
-		return _jsFunction
+		return new jsFunction(f)
 	}
 
-	var _jsArray = new jsArray()
 	this.array = function (arr) {
-		_jsArray.currentArray = arr
-		return _jsArray
+		return new jsArray(arr)
 	}
 
 	this.this = undefined
@@ -35,13 +29,11 @@ miJs = miniJs = new function () {
 *
 * @constructor
 * @this {jsObject}
+* @param {Object} currentObject Object for work
 */
 
-function jsObject() {
+function jsObject(currentObject) {
 
-	//Object for work
-	this.currentObject = undefined
-	
 	/**
 	* The object cloning
 	*
@@ -53,7 +45,7 @@ function jsObject() {
 			for (var i in obj)
 				r[i] = typeof obj[i] == 'object' ? arguments.callee(obj[i]) : obj[i]
 			return r
-		} (this.currentObject)
+		} (currentObject)
 	}
 
 	/**
@@ -78,7 +70,7 @@ function jsObject() {
 			if (first.length == undefined && first.toString() != second.toString()) 
 				return false
 			return true	
-		} (this.currentObject, obj)
+		} (currentObject, obj)
 	}
 
 	/**
@@ -103,12 +95,12 @@ function jsObject() {
 	*/
 	this.alert = function (keyArray, showThis) {
 		var showString = ""
-		for (var i in this.currentObject)
+		for (var i in currentObject)
 			if (showThis) 
-				showString += miniJs.object(i).in(keyArray) ? "" : i + "=" + this.currentObject[i].toString() + '\n'
+				showString += miniJs.object(i).in(keyArray) ? "" : i + "=" + currentObject[i].toString() + '\n'
 			else
-				showString += keyArray ? (miniJs.object(i).in(keyArray) ? i + "=" + this.currentObject[i].toString() + '\n': "") : 
-										 i + "=" + (this.currentObject[i] == undefined ? '' : this.currentObject[i].toString()) + '\n'
+				showString += keyArray ? (miniJs.object(i).in(keyArray) ? i + "=" + currentObject[i].toString() + '\n': "") : 
+										 i + "=" + (currentObject[i] == undefined ? '' : currentObject[i].toString()) + '\n'
 		alert(showString)
 	}
 
@@ -121,16 +113,16 @@ function jsObject() {
 	*/
 	this.set = function(setValue, ifUndefined) {
 		for (var i in setValue) 
-			if (ifUndefined && this.currentObject[i] !== undefined) 
+			if (ifUndefined && currentObject[i] !== undefined) 
 				continue
 			if (typeof setValue[i] == 'object') {
-				if (this.currentObject[i] == undefined) 
-					this.currentObject[i] = setValue[i] instanceof Array ? [] : {}
-				miniJs.object(this.currentObject[i]).set(setValue[i])
+				if (currentObject[i] == undefined) 
+					currentObject[i] = setValue[i] instanceof Array ? [] : {}
+				miniJs.object(currentObject[i]).set(setValue[i])
 			} else if (typeof setValue[i] == 'function')
-				this.currentObject[i] = miniJs.function(setValue[i]).clone()
+				currentObject[i] = miniJs.function(setValue[i]).clone()
 			else
-				this.currentObject[i] = setValue[i]
+				currentObject[i] = setValue[i]
 	}
 
 	/**
@@ -138,7 +130,7 @@ function jsObject() {
 	* Set link to current object in miniJs.this
 	*/
 	this.with = function () {
-		miniJs.this = this.currentObject
+		miniJs.this = currentObject
 	}
 }
 
@@ -149,12 +141,10 @@ function jsObject() {
 *
 * @constructor
 * @this {jsArray}
+* @param {Array} currentArray Array for work
 */
-function jsArray() {
+function jsArray(currentArray) {
 	
-	//Array for work
-	this.currentArray = undefined
-
 	/**
 	*
 	* The array cloning
@@ -162,7 +152,7 @@ function jsArray() {
 	* @returns {Array} Clone of this array
 	*/
 	this.clone = function () {
-		return this.currentArray.slice(0)
+		return currentArray.slice(0)
 	}
 
 	/**
@@ -173,7 +163,7 @@ function jsArray() {
 	* @returns {Boolean} Result
 	*/
 	this.equal = function (arr) {
-		return miJs.object(this.currentArray).equal(arr);
+		return miJs.object(currentArray).equal(arr);
 	}
 
 	/*
@@ -183,8 +173,8 @@ function jsArray() {
 	*/
 	this.alert = function () {
 		var showString = ''
-		for (var i in this.currentArray)
-			showString += i + '=' + this.currentArray[i].toString() + '\n'
+		for (var i in currentArray)
+			showString += i + '=' + currentArray[i].toString() + '\n'
 		alert (showString)
 	}
 
@@ -196,11 +186,11 @@ function jsArray() {
 	* @returns {Array} Results function f
 	*/
 	this.map = function(f) {
-		if (this.currentArray.map !== undefined) 
-			return this.currentArray.map(f);
+		if (currentArray.map !== undefined) 
+			return currentArray.map(f);
 		var result = []
-		for (var i in this.currentArray)
-			result.push(f(this.currentArray[i]));
+		for (var i in currentArray)
+			result.push(f(currentArray[i]));
 		return result;
 	}
 
@@ -212,12 +202,12 @@ function jsArray() {
 	* @returns {Array}
 	*/
 	this.filter = function(f) {
-		if (this.currentArray.filter !== undefined) 
-			return this.currentArray.filter(f)
+		if (currentArray.filter !== undefined) 
+			return currentArray.filter(f)
 		var result = []
-		for (var i in this.currentArray) 
-			if (f(this.currentArray[i])) 
-				result.push(this.currentArray)
+		for (var i in currentArray) 
+			if (f(currentArray[i])) 
+				result.push(currentArray)
 		return result
 	}
 
@@ -229,18 +219,18 @@ function jsArray() {
 	*/
 	this.uniq = function() {
 		var result = []
-		for (var el in this.currentArray) {
-			if (!miJs.object(this.currentArray[el]).in(result)) {
+		for (var el in currentArray) {
+			if (!miJs.object(currentArray[el]).in(result)) {
 				var count = 0
-				for (var i in this.currentArray) {
-					count += miJs.object(this.currentArray[el]).equal(this.currentArray[i]) ? 1 : 0
+				for (var i in currentArray) {
+					count += miJs.object(currentArray[el]).equal(currentArray[i]) ? 1 : 0
 					if (count > 1) {
-						result.push(this.currentArray[el])
+						result.push(currentArray[el])
 						break
 					}
 				}
 				if (count == 1) 
-					result.push(this.currentArray[el])
+					result.push(currentArray[el])
 			}
 		}
 		return result
@@ -268,19 +258,16 @@ function jsArray() {
 *
 * @constructor
 * @this {jsFunction}
+* @param {Function} currentFunction Function for work
 */
-function jsFunction() {
-	
-	//Function for work
-	this.currentFunction = undefined
+function jsFunction(currentFunction) {
 	
 	/*
 	* Decorator caching functions
 	*
-	* @returns {Function} Function this.currentFunction with cache
+	* @returns {Function} Function currentFunction with cache
 	*/
 	this.cache = function () {
-		var currentFunction = this.currentFunction
 	    var ret = function () {
 	        for (var i in ret.base.argument) 
 	            if (ret.base.argument[i].hasOwnProperty(i) && miniJs.object(ret.base.argument[i]).equal(arguments)) 
@@ -298,10 +285,9 @@ function jsFunction() {
 	*
 	* Decorator logging function
 	*
-	* @returns {Function} Function this.currentFunction with log
+	* @returns {Function} Function currentFunction with log
 	*/
 	this.log = function () {
-		var currentFunction = this.currentFunction
 		var ret = function () {
 			var value = currentFunction.apply(this, arguments)
 			ret.log.push({args: arguments, ret: value})
@@ -317,10 +303,9 @@ function jsFunction() {
 	* @returns {Function} Clone function
 	*/
 	this.clone = function() {
-		var currentFunction = this.currentFunction
 	    var temp = function temporary() {return currentFunction.apply({}, arguments)}
-	    for(var key in this.currentFunction) 
-	        temp[key] = typeof this.currentFunction[key] == 'object' ? miJs.object(this.currentFunction[key]).clone(): this.currentFunction[key];
+	    for(var key in currentFunction) 
+	        temp[key] = typeof currentFunction[key] == 'object' ? miJs.object(currentFunction[key]).clone(): currentFunction[key];
 	    return temp;
 	}
 }
