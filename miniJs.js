@@ -11,7 +11,7 @@ miJs = miniJs = function () {
 		if (arguments.length){
 			if (arguments[0] instanceof Array)
 				return new jsArray(arguments[0])
-			if (typeof arguments[0] == 'Function')
+			if (typeof arguments[0] == 'function')
 				return new jsFunction(arguments[0])
 			return new jsObject(arguments[0])
 		}
