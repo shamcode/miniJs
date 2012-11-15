@@ -135,7 +135,7 @@ miJs = miniJs = function () {
 		* @param {Boolean} [showThis] Show key-value, if it not in keyArray
 		*/
 		this.alert = function (keyArray, showThis) {
-			currentObject = this.result || currentObject
+			currentObject = (this.result !== undefined) ? this.result : currentObject
 			var showString = ""
 			for (var i in currentObject)
 				if (showThis) 
@@ -143,6 +143,8 @@ miJs = miniJs = function () {
 				else
 					showString += keyArray ? (miniJs.object(i).in(keyArray) ? i + "=" + currentObject[i].toString() + '\n': "") : 
 											 i + "=" + (currentObject[i] == undefined ? '' : currentObject[i].toString()) + '\n'
+			if (typeof currentObject != 'object')
+				showString += currentObject.toString()
 			alert(showString)
 			if (chainFlag)
 				return this
@@ -157,7 +159,7 @@ miJs = miniJs = function () {
 		*/
 		this.set = function(setValue, ifUndefined) {
 			currentObject = this.result || currentObject
-			for (var i in setValue) 
+			for (var i in setValue) {
 				if (ifUndefined && currentObject[i] !== undefined) 
 					continue
 				if (typeof setValue[i] == 'object') {
@@ -168,6 +170,7 @@ miJs = miniJs = function () {
 					currentObject[i] = miniJs.function(setValue[i]).clone()
 				else
 					currentObject[i] = setValue[i]
+			}
 			if (chainFlag)
 				return this
 		}
@@ -250,10 +253,12 @@ miJs = miniJs = function () {
 		*
 		*/
 		this.alert = function () {
-			currentArray = this.result || currentArray
+			currentArray = (this.result !== undefined) ? this.result : currentArray
 			var showString = ''
 			for (var i in currentArray)
 				showString += i + '=' + currentArray[i].toString() + '\n'
+			if (typeof currentArray != 'object')
+				showString += "" + currentArray
 			alert (showString)
 			if (chainFlag) 
 				return this
@@ -400,7 +405,6 @@ miJs = miniJs = function () {
 		        ret.base.argument.push(arguments)
 		        var value = currentFunction.apply(this, arguments)
 		        ret.base.retValue.push(value)
-		        alert(ret.base.argument[ret.base.argument.length - 1][0])
 		        return value
 		    }
 		    ret.base = {argument: [], retValue: []}
