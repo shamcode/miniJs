@@ -5,3 +5,6 @@ bin-release/
 # Project property files
 .settings/
 .project
+
+# Test folders
+test/
