@@ -72,16 +72,21 @@ miJs = miniJs = function () {
 		/**
 		* The object cloning
 		*
+		* @param {Array}   [keyArray]    Array of key for copy
+		* @param {Boolean} [ignoreKey] If key in keyArray, it no copy to distination object.
 		* @returns {Object} Object cloning
 		*/
-		this.clone = function() {
+		this.clone = function(keyArray, ignoreKey) {
 			currentObject = this.result || currentObject
-			var result = function (obj) {
+			var result = function (obj, keyArray, ignoreKey) {
 							var r = (obj instanceof Array) ? [] : {}
-							for (var i in obj)
+							for (var i in obj) {
+								if (!!ignoreKey == (keyArray.indexOf ? (keyArray.indexOf(i) !== -1) : miJs.object(i).in(keyArray)))
+										continue
 								r[i] = typeof obj[i] == 'object' ? arguments.callee(obj[i]) : obj[i]
+							}
 							return r
-						} (currentObject)
+						} (currentObject, keyArray, ignoreKey)
 			return chainFlag ? (result instanceof Array ? miJs.array(result, true) : (this.result = result, this)) : result;
 		}
 
@@ -180,7 +185,7 @@ miJs = miniJs = function () {
 		* Set link to current object in miniJs.this
 		*/
 		this.with = function () {
-			currentObject = this.result ||  currentObject
+			currentObject = this.result || currentObject
 			miniJs.this = currentObject
 			if (chainFlag)
 				return this
@@ -353,7 +358,6 @@ miJs = miniJs = function () {
 			if (chainFlag)
 				return this
 		}
-
 	}
 
 
