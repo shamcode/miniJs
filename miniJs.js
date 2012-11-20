@@ -190,6 +190,27 @@ miJs = miniJs = function () {
 			if (chainFlag)
 				return this
 		}
+
+		/**
+		*
+		* Return new object contains all diff keys-value currentObject and compareObj.
+		* If flag fromCompareObject == true, value diff object set from compareObject, 
+		* else from currentObject
+		*
+		* @param {Object} compareObj Object for compare
+		* @param {Boolean} value copy from compareObject
+		* @returns {Object} diff object
+		*/
+		this.diff = function(compareObj, fromCompareObject) {
+			currentObject = this.result || currentObject
+			var diffArrayKey = []
+			for (var i in currentObject)
+				if (!(compareObj[i] && miJs.object(currentObject[i]).equal(compareObj[i])))
+					diffArrayKey.push(i)
+			var diffObject = miJs.object(fromCompareObject ? compareObj : currentObject).clone(diffArrayKey)
+			miJs.array(diffArrayKey).each(function (el) {if (diffObject[el] == undefined) diffObject[el] = undefined})
+			return chainFlag ?  (this.result = diffObject, this) : diffObject
+		}
 	}
 
 
