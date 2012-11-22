@@ -148,8 +148,8 @@ miJs = miniJs = function () {
 				else
 					showString += keyArray ? (miniJs.object(i).in(keyArray) ? i + "=" + currentObject[i].toString() + '\n': "") : 
 											 i + "=" + (currentObject[i] == undefined ? '' : currentObject[i].toString()) + '\n'
-			if (typeof currentObject != 'object')
-				showString += currentObject.toString()
+			if ((typeof currentObject != 'object') > (currentObject instanceof Array))
+				showString = currentObject.toString()
 			alert(showString)
 			if (chainFlag)
 				return this
@@ -210,6 +210,73 @@ miJs = miniJs = function () {
 			var diffObject = miJs.object(fromCompareObject ? compareObj : currentObject).clone(diffArrayKey)
 			miJs.array(diffArrayKey).each(function (el) {if (diffObject[el] == undefined) diffObject[el] = undefined})
 			return chainFlag ?  (this.result = diffObject, this) : diffObject
+		}
+
+		/**
+		*
+		* Return array of all keys name of currentObject.
+		*
+		* @returns {Array}
+		*/
+		this.keys = function () {
+			currentObject = this.result || currentObject
+			if (Object.keys !== undefined) 
+				return chainFlag ? (this.result = Object.keys(currentObject), this) : Object.keys(currentObject)
+			var arrayOfKey = []
+			for (var i in currentObject) 
+				arrayOfKey.push(i)
+			return chainFlag ? (this.result = arrayOfKey, this) : arrayOfKey
+		}
+
+		/**
+		*
+		* Return currentObj[key]
+		* 
+		* @param {String} key  Key Name
+		* @returns Value currentObj[key]
+		*/
+		this.value = function (key) {
+			currentObject = this.result || currentObject
+			return chainFlag ? (this.result = currentObject[key], this) : currentObject[key]
+		}
+
+		/**
+		*
+		* Return key name of value in currentObject, else return undefined
+		*
+		* @param value Value for searching
+		* @returns {String|undefined} Key name
+		*/
+		this.key = function(value) {
+			currentObject = this.result || currentObject
+			for (var i in currentObject) 
+				if (miJs.object(currentObject[i]).equal(value))
+					return chainFlag ? (this.result = i, this) : i
+			return chainFlag ? (this.result = undefined, this) : undefined
+		}
+
+		/**
+		*
+		* Work with currentObject as array. Use chainFlag copy.
+		*
+		* @returns {object} miJs.array(currentObject)
+		*/
+		this.array = function () {
+			currentObject = this.result || currentObject
+			var arrayWork = miJs.array(currentObject, chainFlag)
+			return chainFlag ? (arrayWork.result = currentObject, arrayWork) : arrayWork
+		}
+
+		/**
+		*
+		* Work with currentObject as function. Use chainFlag copy.
+		*
+		* @returns {object} miJs.function(currentObject)
+		*/
+		this.function = function () {
+			currentObject = this.result || currentObject
+			var functionWork = miJs.function(currentObject, chainFlag)
+			return chainFlag ? (functionWork.result = currentObject, functionWork) : functionWork
 		}
 	}
 
@@ -379,6 +446,58 @@ miJs = miniJs = function () {
 			if (chainFlag)
 				return this
 		}
+
+		/**
+		*
+		* Return currentArray[index]
+		*
+		* @param {Number} index
+		* @returns currentArray[index]
+		*/
+		this.value = function(index) {
+			currentArray = this.result || currentArray
+			return chainFlag ? (this.result = currentArray[index], this) : currentArray[index]
+		}
+
+		/**
+		*
+		* Return index of element
+		* 
+		* @param Object element Value of element
+		* @returns {Number| undefined} index of element
+		*/
+		this.index = function(element) {
+			currentArray = this.result || currentArray
+			for (var i = 0; i < currentArray.length; i++) 
+				if (miJs.object(currentArray[i]).equal(element))
+					return chainFlag ? (this.result = i, this) : i
+			return chainFlag ? (this.result = i, undefined) : undefined
+		}
+
+
+		/**
+		*
+		* Work with currentArray as object. Use chainFlag copy.
+		*
+		* @returns {object} miJs.object(currentArray)
+		*/
+		this.object = function () {
+			currentArray = this.result || currentArray
+			var objectWork = miJs.object(currentArray, chainFlag)
+			return chainFlag ? (objectWork.result = currentArray, objectWork) : objectWork
+		}
+
+		/**
+		*
+		* Work with currentArray as function. Use chainFlag copy.
+		*
+		* @returns {object} miJs.function(currentObject)
+		*/
+		this.function = function () {
+			currentArray = this.result || currentArray
+			var functionWork = miJs.function(currentArray, chainFlag)
+			return chainFlag ? (functionWork.result = currentArray, functionWork) : functionWork
+		}
 	}
 
 
@@ -476,7 +595,7 @@ miJs = miniJs = function () {
 		    	r.result = temp
 		    	return r
 		    }
-		    return  ret
+		    return  temp
 		}
 	}
 }()
