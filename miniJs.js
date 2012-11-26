@@ -550,14 +550,9 @@ miJs = miniJs = function () {
 		        var value = currentFunction.apply(this, arguments)
 		        ret.base.retValue.push(value)
 		        return value
-		    }
+		    }, r
 		    ret.base = {argument: [], retValue: []}
-		    if (chainFlag) {
-		    	var r =  miJs.function(ret, true)
-		    	r.result = ret
-		    	return r
-		    }
-		    return  ret
+			return chainFlag ? (r = miJs.function(ret, true), r.result = ret, r) : ret;
 		}
 
 		/**
@@ -570,14 +565,9 @@ miJs = miniJs = function () {
 			var ret = function () {
 				var value = currentFunction.apply(this, arguments)
 				ret.log.push({args: arguments, ret: value})
-			}
+			}, r
 			ret.log = []
-		    if (chainFlag) {
-		    	var r =  miJs.function(ret, true)
-		    	r.result = ret
-		    	return r
-		    }
-		    return  ret
+			return chainFlag ? (r = miJs.function(ret, true), r.result = ret, r) : ret;
 		}
 
 		/**
@@ -587,15 +577,47 @@ miJs = miniJs = function () {
 		* @returns {Function} Clone function
 		*/
 		this.clone = function() {
-		    var temp = function temporary() {return currentFunction.apply({}, arguments)}
+		    var temp = function temporary() {return currentFunction.apply({}, arguments)}, r
 		    for(var key in currentFunction) 
 		        temp[key] = currentFunction[key];
-		    if (chainFlag) {
-		    	var r =  miJs.function(temp, true)
-		    	r.result = temp
-		    	return r
-		    }
-		    return  temp
+		    return chainFlag ? (r = miJs.function(temp, true), r.result = temp, r) : temp
+		}
+
+		/**
+		*
+		* Set param function as object
+		*
+		* Example: f(x, y, z, angle) => miJs(f).objectArgument('dot.x', 'dot.y', 'dot.z', 'angle') => 
+		* f({
+		*	dot: {
+		*		x: 1,
+		*		y: 2,
+		*		z: 3
+		*	},
+		*	angle: 30
+		*  })
+		*
+		* @returns {Function}
+		*/
+		this.objectArgument = function() {
+			var arrayLink = Array.prototype.slice.call(arguments),
+			ret = function (object) {
+					var listArgs = [],
+					    buildArrguments = function (obj, parrentKey) {
+							miJs.object(obj, true).keys().array().each(function (el) {
+									var index = arrayLink.indexOf(parrentKey + el)
+									if (index !== -1) {
+										listArgs[index] = obj[el]
+									} else {
+										buildArrguments(obj[el], parrentKey + el + '.')
+									}
+								})
+						}
+					buildArrguments(object, '')
+					return currentFunction.apply(this, listArgs)
+				},
+			r
+			return chainFlag ? (r = miJs.function(ret, true), r.result = ret, r) : ret;
 		}
 	}
 }()
