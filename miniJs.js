@@ -35,6 +35,15 @@ miJs = miniJs = function () {
 			strArg += i + ": " + arguments[i] + '\n'
 		alert(strArg)
 	}
+
+	ret.timer = function() {
+		var startTime = new Date().getTime(),
+		    returnFunction  = function() {
+				return (new Date().getTime() - startTime)
+			}
+		return returnFunction
+	}
+
 	ret.this = undefined
 
 	return ret
@@ -69,7 +78,6 @@ miJs = miniJs = function () {
 		*
 		* @return [] Return result chain Functions 
 		*/
-
 		this.chain = function () {
 			chainFlag = !chainFlag
 			return chainFlag ? this : this.result
@@ -283,6 +291,23 @@ miJs = miniJs = function () {
 			currentObject = this.result || currentObject
 			var functionWork = miJs.function(currentObject, chainFlag)
 			return chainFlag ? (functionWork.result = currentObject, functionWork) : functionWork
+		}
+
+		/**
+		*
+		* Call function with currentObject as argument.
+		* If flagCopyResult == true, then result of function set in this.result (default==false)
+		*
+		* @param {Function} cb
+		* @param {Boolean} [flagCopyResult]
+		* @returns this
+		*/
+		this.externCall = function(cb, flagCopyResult) {
+			currentObject = this.result || currentObject
+			var result = cb(currentObject)
+			if (flagCopyResult)
+				this.result = result
+			return this
 		}
 	}
 
@@ -522,6 +547,23 @@ miJs = miniJs = function () {
 					ret = f(currentArray[i], ret)
 			return chainFlag ? (this.result = ret, this) : ret
 		}
+
+		/**
+		*
+		* Call function with currentArray as argument.
+		* If flagCopyResult == true, then result of function set in this.result (default==false)
+		*
+		* @param {Function} cb
+		* @param {Boolean} [flagCopyResult]
+		* @returns this
+		*/
+		this.externCall = function(cb, flagCopyResult) {
+			currentArray = this.result || currentArray
+			var result = cb(currentArray)
+			if (flagCopyResult)
+				this.result = result
+			return this
+		}
 	}
 
 
@@ -679,6 +721,25 @@ miJs = miniJs = function () {
 			}
 			ret.count = 0
 			return chainFlag ? (r = miJs.function(ret, true), r.result = ret, r) : ret;
+		}
+
+		/**
+		*
+		* Call function with currentFunction as argument.
+		* If flagCopyResult == true, then result of function set in this.result (default==false)
+		*
+		* @param {Function} cb
+		* @param {Boolean} [flagCopyResult]
+		* @returns this
+		*/
+		this.externCall = function(cb, flagCopyResult) {
+			var result = cb(currentFunction),
+				r
+			r = miJs.function(result, chainFlag) 
+			if (flagCopyResult) {
+				r.result = result
+			}
+			return r
 		}
 	}
 }()
