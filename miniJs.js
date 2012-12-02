@@ -29,6 +29,12 @@ miJs = miniJs = function () {
 		return new jsArray(arr, chainFlag)
 	}
 
+	ret.alert = function () {
+		var strArg = ""
+		for (var i in arguments)
+			strArg += i + ": " + arguments[i] + '\n'
+		alert(strArg)
+	}
 	ret.this = undefined
 
 	return ret
@@ -471,7 +477,7 @@ miJs = miniJs = function () {
 			for (var i = 0; i < currentArray.length; i++) 
 				if (miJs.object(currentArray[i]).equal(element))
 					return chainFlag ? (this.result = i, this) : i
-			return chainFlag ? (this.result = i, undefined) : undefined
+			return chainFlag ? (this.result = i, this) : undefined
 		}
 
 
@@ -497,6 +503,24 @@ miJs = miniJs = function () {
 			currentArray = this.result || currentArray
 			var functionWork = miJs.function(currentArray, chainFlag)
 			return chainFlag ? (functionWork.result = currentArray, functionWork) : functionWork
+		}
+		/**
+		*
+		* Reduce function
+		* 
+		* @param {Function} f
+		* @param start
+		* @returns 
+		*/
+		this.reduce = function(f, start) {
+			currentArray = this.result || currentArray
+			var ret = start
+			if (currentArray.reduce) 
+				ret = currentArray.reduce(f, ret)
+			else 
+				for (var i in currentArray) 
+					ret = f(currentArray[i], ret)
+			return chainFlag ? (this.result = ret, this) : ret
 		}
 	}
 
@@ -565,6 +589,7 @@ miJs = miniJs = function () {
 			var ret = function () {
 				var value = currentFunction.apply(this, arguments)
 				ret.log.push({args: arguments, ret: value})
+				return value
 			}, r
 			ret.log = []
 			return chainFlag ? (r = miJs.function(ret, true), r.result = ret, r) : ret;
@@ -617,6 +642,42 @@ miJs = miniJs = function () {
 					return currentFunction.apply(this, listArgs)
 				},
 			r
+			return chainFlag ? (r = miJs.function(ret, true), r.result = ret, r) : ret;
+		}
+
+		/**
+		*
+		*	Profiling function (time, count call)
+		*	
+		*	@returns {Function}
+		*/
+		this.profile = function() {
+			var ret = function () {
+					var startTime = new Date().getTime(),
+						value = currentFunction.apply(this, arguments),
+						timing = new Date().getTime() - startTime
+					ret.count++
+					ret.time.all.push(timing)
+					// if (timing < ret.time.min)
+					// 	ret.time.min = timing
+					// else if (timing > ret.time.max)
+					// 	ret.time.max = timing
+					// ret.time.middle = 
+					return value
+				}, r
+			ret.time = {
+				max : function () { 
+					return Math.max.apply(Math, ret.time.all)
+				},
+				min : function () {
+					return Math.min.apply(Math, ret.time.all)
+				},
+				middle : function () {
+					return miJs.array(ret.time.all).reduce(function(i, old){return i + old;}, 0) / ret.time.all.length
+				},
+				all : []
+			}
+			ret.count = 0
 			return chainFlag ? (r = miJs.function(ret, true), r.result = ret, r) : ret;
 		}
 	}
