@@ -174,7 +174,7 @@ miJs = miniJs = function () {
 		* Set value in object. If key not found in object, it will add.
 		*
 		* @param {Object}  setValue         Object with value for seting
-		* @param {Boolean|Functio} [filter] Set value if current key in currentObject undefineded, else not seting or
+		* @param {Boolean|Function} [filter] Set value if current key in currentObject undefineded, else not seting or
 		*	                                call function filter for all key and object. if filter return true, then value will set.
 		*
 		*/
