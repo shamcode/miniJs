@@ -95,7 +95,7 @@ miJs = miniJs = function () {
 			var result = function (obj, keyArray, ignoreKey) {
 							var r = (obj instanceof Array) ? [] : {}
 							for (var i in obj) {
-								if (!!ignoreKey == (keyArray.indexOf ? (keyArray.indexOf(i) !== -1) : miJs.object(i).in(keyArray)))
+								if (!!ignoreKey == (keyArray && keyArray.indexOf ? (keyArray.indexOf(i) !== -1) : miJs.object(i).in(keyArray)))
 										continue
 								r[i] = typeof obj[i] == 'object' ? arguments.callee(obj[i]) : obj[i]
 							}
@@ -173,18 +173,24 @@ miJs = miniJs = function () {
 		*
 		* Set value in object. If key not found in object, it will add.
 		*
-		* @param {Object}  setValue      Object with value for seting
-		* @param {Boolean} [ifUndefined] Set value if current key in currentObject undefineded, else not seting
+		* @param {Object}  setValue         Object with value for seting
+		* @param {Boolean|Functio} [filter] Set value if current key in currentObject undefineded, else not seting or
+		*	                                call function filter for all key and object. if filter return true, then value will set.
+		*
 		*/
-		this.set = function(setValue, ifUndefined) {
+		this.set = function(setValue, filter) {
 			currentObject = this.result || currentObject
+			var itFunction = typeof filter == 'function'
 			for (var i in setValue) {
-				if (ifUndefined && currentObject[i] !== undefined) 
-					continue
+				if (itFunction) {
+					if (!filter(currentObject, setValue, i))
+						continue
+				} else if (filter && currentObject[i] !== undefined) 
+						continue
 				if (typeof setValue[i] == 'object') {
 					if (currentObject[i] == undefined) 
 						currentObject[i] = setValue[i] instanceof Array ? [] : {}
-					miniJs.object(currentObject[i]).set(setValue[i])
+					miniJs.object(currentObject[i]).set(setValue[i], filter)
 				} else if (typeof setValue[i] == 'function')
 					currentObject[i] = miniJs.function(setValue[i]).clone()
 				else
@@ -668,7 +674,7 @@ miJs = miniJs = function () {
 		*/
 		this.objectArgument = function() {
 			var arrayLink = Array.prototype.slice.call(arguments),
-			ret = function (object) {
+			    ret = function (object) {
 					var listArgs = [],
 					    buildArrguments = function (obj, parrentKey) {
 							miJs.object(obj, true).keys().array().each(function (el) {
@@ -683,7 +689,7 @@ miJs = miniJs = function () {
 					buildArrguments(object, '')
 					return currentFunction.apply(this, listArgs)
 				},
-			r
+			    r
 			return chainFlag ? (r = miJs.function(ret, true), r.result = ret, r) : ret;
 		}
 
@@ -700,11 +706,6 @@ miJs = miniJs = function () {
 						timing = new Date().getTime() - startTime
 					ret.count++
 					ret.time.all.push(timing)
-					// if (timing < ret.time.min)
-					// 	ret.time.min = timing
-					// else if (timing > ret.time.max)
-					// 	ret.time.max = timing
-					// ret.time.middle = 
 					return value
 				}, r
 			ret.time = {
@@ -734,11 +735,9 @@ miJs = miniJs = function () {
 		*/
 		this.externCall = function(cb, flagCopyResult) {
 			var result = cb(currentFunction),
-				r
-			r = miJs.function(result, chainFlag) 
-			if (flagCopyResult) {
+				r      = miJs.function(result, chainFlag) 
+			if (flagCopyResult)
 				r.result = result
-			}
 			return r
 		}
 	}
