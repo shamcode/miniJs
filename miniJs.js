@@ -95,7 +95,11 @@ miJs = miniJs = function () {
 			var result = function (obj, keyArray, ignoreKey) {
 							var r = (obj instanceof Array) ? [] : {}
 							for (var i in obj) {
-								if (!!ignoreKey == (keyArray && keyArray.indexOf ? (keyArray.indexOf(i) !== -1) : miJs.object(i).in(keyArray)))
+								if (keyArray && 
+									(!!ignoreKey == (
+										keyArray && keyArray.indexOf ? (keyArray.indexOf(i) !== -1) : miJs.object(i).in(keyArray))
+									)
+								)
 										continue
 								r[i] = typeof obj[i] == 'object' ? arguments.callee(obj[i]) : obj[i]
 							}
