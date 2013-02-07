@@ -500,13 +500,14 @@ miJs = miniJs = function () {
 		*
 		* Return index of element
 		* 
-		* @param Object element Value of element
+		* @param [Object|Function] element Value of element
+		* @param {Boolean} [flag] if flag == true, then element is function for compare
 		* @returns {Number| undefined} index of element
 		*/
-		this.index = function(element) {
+		this.index = function(element, flag) {
 			currentArray = this.result || currentArray
 			for (var i = 0; i < currentArray.length; i++) 
-				if (miJs.object(currentArray[i]).equal(element))
+				if (flag ? element(currentArray[i]) : miJs.object(currentArray[i]).equal(element))
 					return chainFlag ? (this.result = i, this) : i
 			return chainFlag ? (this.result = i, this) : undefined
 		}
@@ -742,7 +743,6 @@ miJs = miniJs = function () {
 		}
 	}
 }()
-
 
 
 
