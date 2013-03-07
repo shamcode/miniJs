@@ -199,7 +199,7 @@ miJs = miniJs = function () {
 					return false;
 				for (var i = 0; i < first.length; i++) 
 					if (typeof first[i] == 'object') {
-						if !(second[i] && arguments.callee(first[i], second[i])) 
+						if (!(second[i] && arguments.callee(first[i], second[i])))
 							return false;
 					} else if (typeof first[i] == 'function') {
 						if (first[i].toString() != second[i].toString()) 
@@ -834,7 +834,7 @@ miJs = miniJs = function () {
 			return r;
 		}
 	}
-}()
+}();
 
 
 
