@@ -8,3 +8,5 @@ bin-release/
 
 # Test folders
 test/
+miJs.sublime-project
+miJs.sublime-workspace

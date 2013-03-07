@@ -7,70 +7,130 @@
 
 miJs = miniJs = function () {
 	
-	var ret = function () {
-		if (arguments.length){
-			if (arguments[0] instanceof Array)
-				return new jsArray(arguments[0], arguments[1])
-			if (typeof arguments[0] == 'function')
-				return new jsFunction(arguments[0], arguments[1])
-			return new jsObject(arguments[0], arguments[1])
+	/**
+	*
+	* Access to collections as function
+	*
+	* @this {miJs}
+	* @param   {Object | Array | Function} arg                 Object for work
+	* @param   {Boolean}                   [chainFunctionFlag] Use chain function?
+	* @returns {miJsObject | miJsArray | miJsFunction} 
+	*/
+	var miJsCallback = function (arg, chainFunctionFlag) {
+		if (arguments.length) {
+			// Is Array
+			if (arg instanceof Array)
+				return new miJsArray(arg, chainFunctionFlag);
+			
+			// Is Function
+			if (typeof arg == 'function')
+				return new miJsFunction(arg, chainFunctionFlag);
+			
+			// Is Object
+			return new miJsObject(arg, chainFunctionFlag);
 		}
 	}
 
-	ret.object = function (obj, chainFlag) {
-		return new jsObject(obj, chainFlag)
-	}
-				
-	ret.function = function (f, chainFlag) {
-		return new jsFunction(f, chainFlag)
-	}
-
-	ret.array = function (arr, chainFlag) {
-		return new jsArray(arr, chainFlag)
-	}
-
-	ret.alert = function () {
-		var strArg = ""
-		for (var i in arguments)
-			strArg += i + ": " + arguments[i] + '\n'
-		alert(strArg)
+	/**
+	*
+	* Access for collection functions for work with Object
+	*
+	* @this {miJs}
+	* @param   {Object}  objectArg           Object for work
+	* @param   {Boolean} [chainFunctionFlag] Use chain function?
+	* @returns {miJsObject}
+	*/
+	miJsCallback.object = function (objectArg, chainFunctionFlag) {
+		return new miJsObject(objectArg, chainFunctionFlag);
 	}
 
-	ret.timer = function() {
-		var startTime = new Date().getTime(),
-		    returnFunction  = function() {
-				return (new Date().getTime() - startTime)
-			}
-		return returnFunction
+	/**
+	*
+	* Access for collection functions for work with Array
+	*
+	* @this {miJs}
+	* @param   {Array}   functionArg         Array for work
+	* @param   {Boolean} [chainFunctionFlag] Use chain function?
+	* @returns {miJsArray}
+	*/
+	miJsCallback.array = function (arrayArg, chainFunctionFlag) {
+		return new miJsArray(arrayArg, chainFunctionFlag);
 	}
 
-	ret.this = undefined
+	/**
+	*
+	* Access for collection functions for work with Function
+	*
+	* @this {miJs}
+	* @param {Function} functionArg         Function for work
+	* @param {Boolean}  [chainFunctionFlag] Use chain function?
+	* @returns {miJsFunction}
+	*/				
+	miJsCallback.function = function (functionArg, chainFunctionFlag) {
+		return new miJsFunction(functionArg, chainFunctionFlag);
+	}
 
-	return ret
+	/**
+	*
+	* Show all passed arguments in alert dialog
+	*
+	* @this {miJs}
+	*/
+	miJsCallback.alert = function () {
+		var alertString = "";
+		for (var i = 0; i < arguments.length; i++)
+			alertString += i + ": " + arguments[i] + '\n';
+		alert(alertString);
+	}
+
+	/**
+	*
+	* Create timer
+	*
+	* @returns {Function}      callback
+	* @returns {callback.Date} Time after calling miJs.timer
+	*/
+	miJsCallback.timer = function() {
+		var startTime = new Date().getTime();
+		return function() {
+			return (new Date().getTime() - startTime);
+		}
+	}
+
+	/**
+	*
+	* Local variable
+	* @see {miJsObject.with}
+	*/
+	miJsCallback.this = undefined;
+
+
+	return miJsCallback;
 
 	
 	/**
-	* Create jsObject - collection functions for work with Objects in JS
+	*
+	* Create miJsObject - collection functions for work with Objects in JS
 	*
 	* @constructor
-	* @this {jsObject}
-	* @param {Object} currentObject Object for work
-	* @param {Boolean} chainFunctionFlag flag chain function
+	* @this {miJsObject}
+	* @param {Object}  currentObject        Object for work
+	* @param {Boolean} [chainFunctionFlag]  Use chain function?
 	*/
 
-	function jsObject(currentObject, chainFunctionFlag) {
+	function miJsObject(currentObject, chainFunctionFlag) {
 
 		/**
 		*
 		* Chain Functions flag
 		*/
-		var chainFlag = !!chainFunctionFlag
+		var chainFlag = !!chainFunctionFlag;
 		
 		/**
 		*
 		* Result for chain functions
 		*/
-		this.result = undefined
+		this.result = undefined;
 
 		/**
 		*
@@ -79,72 +139,90 @@ miJs = miniJs = function () {
 		* @return [] Return result chain Functions 
 		*/
 		this.chain = function () {
-			chainFlag = !chainFlag
-			return chainFlag ? this : this.result
+			chainFlag = !chainFlag;
+			return chainFlag ? this : this.result;
 		}
 
 		/**
 		* The object cloning
 		*
-		* @param {Array}   [keyArray]    Array of key for copy
-		* @param {Boolean} [ignoreKey] If key in keyArray, it no copy to distination object.
-		* @returns {Object} Object cloning
+		* @param   {Array}   [keyArray]  Array of key for copy
+		* @param   {Boolean} [ignoreKey] If key in keyArray, it no copy to distination object.
+		* @returns {Object}              Object cloning
 		*/
 		this.clone = function(keyArray, ignoreKey) {
-			currentObject = this.result || currentObject
+			currentObject = this.result || currentObject;
+			
+			// recursively clone
 			var result = function (obj, keyArray, ignoreKey) {
-							var r = (obj instanceof Array) ? [] : {}
-							for (var i in obj) {
-								if (keyArray && 
-									(!!ignoreKey == (
-										keyArray && keyArray.indexOf ? (keyArray.indexOf(i) !== -1) : miJs.object(i).in(keyArray))
-									)
-								)
-										continue
-								r[i] = typeof obj[i] == 'object' ? arguments.callee(obj[i]) : obj[i]
-							}
-							return r
-						} (currentObject, keyArray, ignoreKey)
-			return chainFlag ? (result instanceof Array ? miJs.array(result, true) : (this.result = result, this)) : result;
+				var localResult = (obj instanceof Array) ? [] : {};
+				for (var i = 0; i < obj.length; i++) {
+					if (keyArray && 
+						(!!ignoreKey == (
+							keyArray && keyArray.indexOf ? (keyArray.indexOf(i) !== -1) : miJs.object(i).in(keyArray))
+						)
+					)
+						continue;
+					localResult[i] = typeof obj[i] == 'object' ? arguments.callee(obj[i]) : obj[i];
+				}
+				return localResult;
+			} (currentObject, keyArray, ignoreKey);
+
+			// return result
+			if (chainFlag) {
+				if (result instanceof Array)
+					return miJs.array(result, true);
+				else {
+					this.result = result;
+					return this;
+				}
+			} else
+				return result;
 		}
 
 		/**
 		*
 		* Tests for the equality of the passed object
 		*
-		* @param {Object} obj
+		* @param   {Object}  testObject
 		* @returns {Boolean} Result
 		*/
-		this.equal = function (obj) {
+		this.equal = function (testObject) {
 			currentObject = this.result || currentObject
+			// recursively test
 			var result = function(first, second) {
-				if (first == undefined || second == undefined) return first == second;
-				if (first.length != second.length) return false
-				for (var i in first) 
-					if (typeof first[i] == 'object') {
-						if (!second[i] || !arguments.callee(first[i], second[i])) return false
-					} else if (typeof first[i] == 'function') {
-						if (first[i].toString() != second[i].toString()) return false
-						}
-					else 
-						if (first[i] !== second[i]) return false
+				if (first == undefined || second == undefined) 
+					return first == second;
+				if (first.length != second.length) 
+					return false;
 				if (first.length == undefined && first.toString() != second.toString()) 
-					return false
-				return true	
-			} (currentObject, obj)
-			return chainFlag ? (this.result = result, this) : result
+					return false;
+				for (var i = 0; i < first.length; i++) 
+					if (typeof first[i] == 'object') {
+						if !(second[i] && arguments.callee(first[i], second[i])) 
+							return false;
+					} else if (typeof first[i] == 'function') {
+						if (first[i].toString() != second[i].toString()) 
+							return false;
+					} else 
+						if (first[i] !== second[i]) 
+							return false;
+				return true;	
+			} (currentObject, testObject);
+
+			return chainFlag ? (this.result = result, this) : result;
 		}
 
 		/**
 		*
 		* Tests for the occurrence of an object in an array
 		* 
-		* @param {Array} array 
+		* @param   {Array}   array 
 		* @returns {Boolean} Is object in the array
 		*/
 		this.in = function (array) {
-			currentObject = this.result || currentObject
-			for (var i in array) 
+			currentObject = this.result || currentObject;
+			for (var i = 0; i < array.length; i++) 
 				if (miJs.object(currentObject).equal(array[i])) 
 					return chainFlag ? (this.result = true, this) : true;
 			return chainFlag ? (this.result = false, this) : false;
@@ -158,50 +236,54 @@ miJs = miniJs = function () {
 		* @param {Boolean} [showThis] Show key-value, if it not in keyArray
 		*/
 		this.alert = function (keyArray, showThis) {
-			currentObject = (this.result !== undefined) ? this.result : currentObject
-			var showString = ""
-			for (var i in currentObject)
+			currentObject = (this.result !== undefined) ? this.result : currentObject;
+			var showString = "";
+			for (var i = 0; i < currentObject.length; i++)
 				if (showThis) 
-					showString += miniJs.object(i).in(keyArray) ? "" : i + "=" + currentObject[i].toString() + '\n'
+					showString += miniJs.object(i).in(keyArray) ? "" : i + "=" + currentObject[i].toString() + '\n';
 				else
 					showString += keyArray ? (miniJs.object(i).in(keyArray) ? i + "=" + currentObject[i].toString() + '\n': "") : 
-											 i + "=" + (currentObject[i] == undefined ? '' : currentObject[i].toString()) + '\n'
+											 i + "=" + (currentObject[i] == undefined ? '' : currentObject[i].toString()) + '\n';
+			
 			if ((typeof currentObject != 'object') > (currentObject instanceof Array))
-				showString = currentObject.toString()
-			alert(showString)
+				showString = currentObject.toString();
+			
+			alert(showString);
+			
 			if (chainFlag)
-				return this
+				return this;
 		}
 
 		/**
 		*
 		* Set value in object. If key not found in object, it will add.
 		*
-		* @param {Object}  setValue         Object with value for seting
-		* @param {Boolean|Function} [filter] Set value if current key in currentObject undefineded, else not seting or
-		*	                                call function filter for all key and object. if filter return true, then value will set.
-		*
+		* @param {Object}           setValue   Object with value for seting
+		* @param {Boolean|Function} [filter]   Set value if current key in currentObject undefineded, 
+		*									   else not seting or call function filter for all key and 
+		*									   object. if filter return true, then value will set.
 		*/
 		this.set = function(setValue, filter) {
-			currentObject = this.result || currentObject
-			var itFunction = typeof filter == 'function'
-			for (var i in setValue) {
-				if (itFunction) {
+			currentObject = this.result || currentObject;
+			var isFunction = typeof filter == 'function';
+			for (var i = 0; i < setValue.length; i++) {
+				if (isFunction) {
 					if (!filter(currentObject, setValue, i))
-						continue
+						continue;
 				} else if (filter && currentObject[i] !== undefined) 
-						continue
+					continue;
+
 				if (typeof setValue[i] == 'object') {
 					if (currentObject[i] == undefined) 
-						currentObject[i] = setValue[i] instanceof Array ? [] : {}
-					miniJs.object(currentObject[i]).set(setValue[i], filter)
+						currentObject[i] = setValue[i] instanceof Array ? [] : {};
+					miniJs.object(currentObject[i]).set(setValue[i], filter);
 				} else if (typeof setValue[i] == 'function')
-					currentObject[i] = miniJs.function(setValue[i]).clone()
+					currentObject[i] = miniJs.function(setValue[i]).clone();
 				else
-					currentObject[i] = setValue[i]
+					currentObject[i] = setValue[i];
 			}
 			if (chainFlag)
-				return this
+				return this;
 		}
 
 		/**
@@ -209,10 +291,10 @@ miJs = miniJs = function () {
 		* Set link to current object in miniJs.this
 		*/
 		this.with = function () {
-			currentObject = this.result || currentObject
-			miniJs.this = currentObject
+			currentObject = this.result || currentObject;
+			miniJs.this = currentObject;
 			if (chainFlag)
-				return this
+				return this;
 		}
 
 		/**
@@ -221,19 +303,19 @@ miJs = miniJs = function () {
 		* If flag fromCompareObject == true, value diff object set from compareObject, 
 		* else from currentObject
 		*
-		* @param {Object} compareObj Object for compare
-		* @param {Boolean} value copy from compareObject
-		* @returns {Object} diff object
+		* @param   {Object}  compareObj        Object for compare
+		* @param   {Boolean} fromCompareObject Value copy from compareObject
+		* @returns {Object}                    Diff object
 		*/
 		this.diff = function(compareObj, fromCompareObject) {
-			currentObject = this.result || currentObject
-			var diffArrayKey = []
-			for (var i in currentObject)
-				if (!(compareObj[i] && miJs.object(currentObject[i]).equal(compareObj[i])))
-					diffArrayKey.push(i)
-			var diffObject = miJs.object(fromCompareObject ? compareObj : currentObject).clone(diffArrayKey)
-			miJs.array(diffArrayKey).each(function (el) {if (diffObject[el] == undefined) diffObject[el] = undefined})
-			return chainFlag ?  (this.result = diffObject, this) : diffObject
+			currentObject = this.result || currentObject;
+			var diffArrayKey = [];
+			for (var i = 0; i < currentObject.length; i++)
+				if (!(compareObj[i] && miJs.object(currentObject[i]).equal(compareObj[i])));
+					diffArrayKey.push(i);
+			var diffObject = miJs.object(fromCompareObject ? compareObj : currentObject).clone(diffArrayKey);
+			
+			return chainFlag ? (this.result = diffObject, this) : diffObject;
 		}
 
 		/**
@@ -243,40 +325,40 @@ miJs = miniJs = function () {
 		* @returns {Array}
 		*/
 		this.keys = function () {
-			currentObject = this.result || currentObject
+			currentObject = this.result || currentObject;
 			if (Object.keys !== undefined) 
-				return chainFlag ? (this.result = Object.keys(currentObject), this) : Object.keys(currentObject)
-			var arrayOfKey = []
-			for (var i in currentObject) 
-				arrayOfKey.push(i)
-			return chainFlag ? (this.result = arrayOfKey, this) : arrayOfKey
+				return chainFlag ? (this.result = Object.keys(currentObject), this) : Object.keys(currentObject);
+			var arrayOfKey = [];
+			for (var i = 0; i < currentObject.length; i++) 
+				arrayOfKey.push(i);
+			return chainFlag ? (this.result = arrayOfKey, this) : arrayOfKey;
 		}
 
 		/**
 		*
 		* Return currentObj[key]
 		* 
-		* @param {String} key  Key Name
-		* @returns Value currentObj[key]
+		* @param {String} key Key Name
+		* @returns            Value currentObj[key]
 		*/
 		this.value = function (key) {
-			currentObject = this.result || currentObject
-			return chainFlag ? (this.result = currentObject[key], this) : currentObject[key]
+			currentObject = this.result || currentObject;
+			return chainFlag ? (this.result = currentObject[key], this) : currentObject[key];
 		}
 
 		/**
 		*
 		* Return key name of value in currentObject, else return undefined
 		*
-		* @param value Value for searching
-		* @returns {String|undefined} Key name
+		* @param                      value Value for searching
+		* @returns {String|undefined}       Key name
 		*/
 		this.key = function(value) {
-			currentObject = this.result || currentObject
-			for (var i in currentObject) 
+			currentObject = this.result || currentObject;
+			for (var i = 0; i < currentObject; i++) 
 				if (miJs.object(currentObject[i]).equal(value))
-					return chainFlag ? (this.result = i, this) : i
-			return chainFlag ? (this.result = undefined, this) : undefined
+					return chainFlag ? (this.result = i, this) : i;
+			return chainFlag ? (this.result = undefined, this) : undefined;
 		}
 
 		/**
@@ -286,9 +368,9 @@ miJs = miniJs = function () {
 		* @returns {object} miJs.array(currentObject)
 		*/
 		this.array = function () {
-			currentObject = this.result || currentObject
-			var arrayWork = miJs.array(currentObject, chainFlag)
-			return chainFlag ? (arrayWork.result = currentObject, arrayWork) : arrayWork
+			currentObject = this.result || currentObject;
+			var arrayWork = miJs.array(currentObject, chainFlag);
+			return chainFlag ? (arrayWork.result = currentObject, arrayWork) : arrayWork;
 		}
 
 		/**
@@ -298,9 +380,9 @@ miJs = miniJs = function () {
 		* @returns {object} miJs.function(currentObject)
 		*/
 		this.function = function () {
-			currentObject = this.result || currentObject
-			var functionWork = miJs.function(currentObject, chainFlag)
-			return chainFlag ? (functionWork.result = currentObject, functionWork) : functionWork
+			currentObject = this.result || currentObject;
+			var functionWork = miJs.function(currentObject, chainFlag);
+			return chainFlag ? (functionWork.result = currentObject, functionWork) : functionWork;
 		}
 
 		/**
@@ -309,41 +391,41 @@ miJs = miniJs = function () {
 		* If flagCopyResult == true, then result of function set in this.result (default==false)
 		*
 		* @param {Function} cb
-		* @param {Boolean} [flagCopyResult]
+		* @param {Boolean}  [flagCopyResult]
 		* @returns this
 		*/
 		this.externCall = function(cb, flagCopyResult) {
-			currentObject = this.result || currentObject
-			var result = cb(currentObject)
+			currentObject = this.result || currentObject;
+			var result = cb(currentObject);
 			if (flagCopyResult)
-				this.result = result
-			return this
+				this.result = result;
+			return this;
 		}
 	}
 
 
 	/**
 	*
-	* Create jsArray - coolection functions for work with Array in Js
+	* Create miJsArray - coolection functions for work with Array in Js
 	*
 	* @constructor
-	* @this {jsArray}
-	* @param {Array} currentArray Array for work
-	* @param {Boolean} chainFunctionFlag flag chain function
+	* @this {miJsArray}
+	* @param {Array}   currentArray      Array for work
+	* @param {Boolean} chainFunctionFlag Use chain function?
 	*/
-	function jsArray(currentArray, chainFunctionFlag) {
+	function miJsArray(currentArray, chainFunctionFlag) {
 		
 		/**
 		*
 		* Chain Functions flag
 		*/
-		var chainFlag = !!chainFunctionFlag
+		var chainFlag = !!chainFunctionFlag;
 		
 		/**
 		*
 		* Result for chain functions
 		*/
-		this.result = undefined
+		this.result = undefined;
 
 		/**
 		*
@@ -353,8 +435,8 @@ miJs = miniJs = function () {
 		*/
 
 		this.chain = function () {
-			chainFlag = !chainFlag
-			return chainFlag ? this : this.result
+			chainFlag = !chainFlag;
+			return chainFlag ? this : this.result;
 		}
 
 
@@ -365,7 +447,7 @@ miJs = miniJs = function () {
 		* @returns {Array} Clone of this array
 		*/
 		this.clone = function () {
-			currentArray = this.result || currentArray
+			currentArray = this.result || currentArray;
 			return chainFlag ? (this.result = currentArray.slice(0), this) : currentArray.slice(0);
 		}
 
@@ -377,7 +459,7 @@ miJs = miniJs = function () {
 		* @returns {Boolean} Result
 		*/
 		this.equal = function (arr) {
-			currentArray = this.result || currentArray
+			currentArray = this.result || currentArray;
 			return chainFlag ? (this.result = miJs.object(currentArray).equal(arr), this): miJs.object(currentArray).equal(arr);
 		}
 
@@ -387,30 +469,30 @@ miJs = miniJs = function () {
 		*
 		*/
 		this.alert = function () {
-			currentArray = (this.result !== undefined) ? this.result : currentArray
-			var showString = ''
-			for (var i in currentArray)
-				showString += i + '=' + currentArray[i].toString() + '\n'
+			currentArray = (this.result !== undefined) ? this.result : currentArray;
+			var showString = '';
+			for (var i = 0; i < currentArray.length; i++)
+				showString += i + '=' + currentArray[i].toString() + '\n';
 			if (typeof currentArray != 'object')
-				showString += "" + currentArray
-			alert (showString)
+				showString += "" + currentArray;
+			alert (showString);
 			if (chainFlag) 
-				return this
+				return this;
 		}
 
 		/**
 		*
 		* Iter run functions for all elements in array and return aray of result
 		*
-		* @param {Function} f Callback
-		* @returns {Array} Results function f
+		* @param   {Function} f Callback
+		* @returns {Array}      Results function f
 		*/
 		this.map = function(f) {
-			currentArray = this.result || currentArray
+			currentArray = this.result || currentArray;
 			if (currentArray.map !== undefined) 
 				return chainFlag ? (this.result = currentArray.map(f), this) : currentArray.map(f);
-			var result = []
-			for (var i in currentArray)
+			var result = [];
+			for (var i = 0; i < currentArray.length; i++)
 				result.push(f(currentArray[i]));
 			return chainFlag ? (this.result = result, this) : result;
 		}
@@ -419,18 +501,18 @@ miJs = miniJs = function () {
 		*
 		* Creates a new array with all elements that pass the test implemented by the provided function.
 		* 
-		* @param {Function} f Callback
+		* @param   {Function} f Callback
 		* @returns {Array}
 		*/
 		this.filter = function(f) {
-			currentArray = this.result || currentArray
+			currentArray = this.result || currentArray;
 			if (currentArray.filter !== undefined) 
-				return chainFlag ? (this.result = currentArray.filter(f), this) : currentArray.filter(f)
-			var result = []
-			for (var i in currentArray) 
+				return chainFlag ? (this.result = currentArray.filter(f), this) : currentArray.filter(f);
+			var result = [];
+			for (var i = 0; i < currentArray.length; i++) 
 				if (f(currentArray[i])) 
-					result.push(currentArray)
-			return chainFlag ? (this.result = result, this) : result
+					result.push(currentArray);
+			return chainFlag ? (this.result = result, this) : result;
 		}
 
 		/**
@@ -440,36 +522,38 @@ miJs = miniJs = function () {
 		* @returns {Array}
 		*/
 		this.uniq = function() {
-			currentArray = this.result || currentArray
-			var result = []
-			for (var el in currentArray) {
+			currentArray = this.result || currentArray;
+			var result = [];
+			for (var el = 0; el < currentArray.length; el++) {
 				if (!miJs.object(currentArray[el]).in(result)) {
-					var count = 0
-					for (var i in currentArray) {
-						count += miJs.object(currentArray[el]).equal(currentArray[i]) ? 1 : 0
+					var count = 0;
+					for (var i = 0; i < currentArray.length; i++) {
+						if (miJs.object(currentArray[el]).equal(currentArray[i]))
+							count++;
 						if (count > 1) {
 							result.push(currentArray[el])
 							break
 						}
 					}
 					if (count == 1) 
-						result.push(currentArray[el])
+						result.push(currentArray[el]);
 				}
 			}
-			return chainFlag ? (this.result = result, this) : result
+			return chainFlag ? (this.result = result, this) : result;
 		}
 
 		/**
 		*
 		* Delete all element equal passed in array 
 		*
-		* @param {Object} element Finding elem
+		* @param   {Object} element Finding elem
 		* @returns {Array}
 		*/
 		this.delete = function (element) {
-			var result = this.filter(
-				function(i){return !miJs.object(i).equal(element)})
-			return chainFlag ? this : result
+			var result = this.filter(function(i) {
+				return !miJs.object(i).equal(element)
+			})
+			return chainFlag ? this : result;
 		}
 
 		/**
@@ -479,13 +563,13 @@ miJs = miniJs = function () {
 		* @param {Function} f Function for work
 		*/
 		this.each = function (f) {
-			currentArray = this.result || currentArray
+			currentArray = this.result || currentArray;
 			if (currentArray.forEach !== undefined)
-				return chainFlag ? (currentArray.forEach(f), this) : currentArray.forEach(f)
-			for (var i in currentArray)
-				f(currentArray[i])
+				return chainFlag ? (currentArray.forEach(f), this) : currentArray.forEach(f);
+			for (var i = 0; i < currentArray.length; i++)
+				f(currentArray[i]);
 			if (chainFlag)
-				return this
+				return this;
 		}
 
 		/**
@@ -493,29 +577,29 @@ miJs = miniJs = function () {
 		* Return currentArray[index]
 		*
 		* @param {Number} index
-		* @returns currentArray[index]
+		* @returns               currentArray[index]
 		*/
 		this.value = function(index) {
-			currentArray = this.result || currentArray
-			return chainFlag ? (this.result = currentArray[index], this) : currentArray[index]
+			currentArray = this.result || currentArray;
+			return chainFlag ? (this.result = currentArray[index], this) : currentArray[index];
 		}
 
 		/**
 		*
 		* Return index of element
 		* 
-		* @param [Object|Function] element Value of element
-		* @param {Boolean} [flag] if flag == true, then element is function for compare
-		* @returns {Number| undefined} index of element
+		* @param   {Object|Function}   	element Value of element
+		* @param   {Boolean}           	[flag]  If flag == true, then element is function for compare
+		* @returns {Number| undefined} 	        Index of element
 		*/
 		this.index = function(element, flag) {
-			currentArray = this.result || currentArray
+			currentArray = this.result || currentArray;
 			for (var i = 0; i < currentArray.length; i++) 
 				if (flag ? element(currentArray[i]) : miJs.object(currentArray[i]).equal(element))
-					return chainFlag ? (this.result = i, this) : i
-			return chainFlag ? (this.result = i, this) : undefined
+					return chainFlag ? (this.result = i, this) : i;
+			return chainFlag ? (this.result = i, this) : undefined;
 		}
-
+		
 
 		/**
 		*
@@ -524,9 +608,9 @@ miJs = miniJs = function () {
 		* @returns {object} miJs.object(currentArray)
 		*/
 		this.object = function () {
-			currentArray = this.result || currentArray
-			var objectWork = miJs.object(currentArray, chainFlag)
-			return chainFlag ? (objectWork.result = currentArray, objectWork) : objectWork
+			currentArray = this.result || currentArray;
+			var objectWork = miJs.object(currentArray, chainFlag);
+			return chainFlag ? (objectWork.result = currentArray, objectWork) : objectWork;
 		}
 
 		/**
@@ -536,9 +620,9 @@ miJs = miniJs = function () {
 		* @returns {object} miJs.function(currentObject)
 		*/
 		this.function = function () {
-			currentArray = this.result || currentArray
-			var functionWork = miJs.function(currentArray, chainFlag)
-			return chainFlag ? (functionWork.result = currentArray, functionWork) : functionWork
+			currentArray = this.result || currentArray;
+			var functionWork = miJs.function(currentArray, chainFlag);
+			return chainFlag ? (functionWork.result = currentArray, functionWork) : functionWork;
 		}
 		/**
 		*
@@ -549,14 +633,14 @@ miJs = miniJs = function () {
 		* @returns 
 		*/
 		this.reduce = function(f, start) {
-			currentArray = this.result || currentArray
-			var ret = start
+			currentArray = this.result || currentArray;
+			var ret = start;
 			if (currentArray.reduce) 
-				ret = currentArray.reduce(f, ret)
+				ret = currentArray.reduce(f, ret);
 			else 
-				for (var i in currentArray) 
-					ret = f(currentArray[i], ret)
-			return chainFlag ? (this.result = ret, this) : ret
+				for (var i = 0; i < currentArray.length; i++) 
+					ret = f(ret, currentArray[i]);
+			return chainFlag ? (this.result = ret, this) : ret;
 		}
 
 		/**
@@ -565,41 +649,41 @@ miJs = miniJs = function () {
 		* If flagCopyResult == true, then result of function set in this.result (default==false)
 		*
 		* @param {Function} cb
-		* @param {Boolean} [flagCopyResult]
+		* @param {Boolean}  [flagCopyResult]
 		* @returns this
 		*/
 		this.externCall = function(cb, flagCopyResult) {
-			currentArray = this.result || currentArray
-			var result = cb(currentArray)
+			currentArray = this.result || currentArray;
+			var result = cb(currentArray);
 			if (flagCopyResult)
-				this.result = result
-			return this
+				this.result = result;
+			return this;
 		}
 	}
 
 
 	/**
 	*
-	* Create jsFunction - collection functions for work with Function in JS
+	* Create miJsFunction - collection functions for work with Function in JS
 	*
 	* @constructor
-	* @this {jsFunction}
-	* @param {Function} currentFunction Function for work
-	* @param {Boolean} chainFunctionFlag flag chain function
+	* @this {miJsFunction}
+	* @param {Function} currentFunction   Function for work
+	* @param {Boolean}  chainFunctionFlag Use chain function?
 	*/
-	function jsFunction(currentFunction, chainFunctionFlag) {
+	function miJsFunction(currentFunction, chainFunctionFlag) {
 		
 		/**
 		*
 		* Chain Functions flag
 		*/
-		var chainFlag = !!chainFunctionFlag
+		var chainFlag = !!chainFunctionFlag;
 		
 		/**
 		*
 		* Result for chain functions
 		*/
-		this.result = undefined
+		this.result = undefined;
 
 		/**
 		*
@@ -609,8 +693,8 @@ miJs = miniJs = function () {
 		*/
 
 		this.chain = function () {
-			chainFlag = !chainFlag
-			return chainFlag ? this : this.result
+			chainFlag = !chainFlag;
+			return chainFlag ? this : this.result;
 		}
 
 		/*
@@ -621,14 +705,15 @@ miJs = miniJs = function () {
 		this.cache = function () {
 		    var ret = function () {
 		        for (var i in ret.base.argument) 
-		            if (ret.base.argument.hasOwnProperty(i) && miniJs.object(ret.base.argument[i]).equal(arguments)) 
-		                return ret.base.retValue[i]
-		        ret.base.argument.push(arguments)
-		        var value = currentFunction.apply(this, arguments)
-		        ret.base.retValue.push(value)
-		        return value
-		    }, r
-		    ret.base = {argument: [], retValue: []}
+		            if (ret.base.argument.hasOwnProperty(i) && miniJs.object(ret.base.argument[i]).equal(arguments)); 
+		                return ret.base.retValue[i];
+		        ret.base.argument.push(arguments);
+		        var value = currentFunction.apply(this, arguments);
+		        ret.base.retValue.push(value);
+		        return value;
+		    };
+		    var r;
+		    ret.base = {argument: [], retValue: []};
 			return chainFlag ? (r = miJs.function(ret, true), r.result = ret, r) : ret;
 		}
 
@@ -640,11 +725,12 @@ miJs = miniJs = function () {
 		*/
 		this.log = function () {
 			var ret = function () {
-				var value = currentFunction.apply(this, arguments)
-				ret.log.push({args: arguments, ret: value})
-				return value
-			}, r
-			ret.log = []
+				var value = currentFunction.apply(this, arguments);
+				ret.log.push({args: arguments, ret: value});
+				return value;
+			};
+			var r;
+			ret.log = [];
 			return chainFlag ? (r = miJs.function(ret, true), r.result = ret, r) : ret;
 		}
 
@@ -655,10 +741,13 @@ miJs = miniJs = function () {
 		* @returns {Function} Clone function
 		*/
 		this.clone = function() {
-		    var temp = function temporary() {return currentFunction.apply({}, arguments)}, r
+		    var temp = function temporary() {
+		    	return currentFunction.apply({}, arguments)
+		    };
+		    var r;
 		    for(var key in currentFunction) 
 		        temp[key] = currentFunction[key];
-		    return chainFlag ? (r = miJs.function(temp, true), r.result = temp, r) : temp
+		    return chainFlag ? (r = miJs.function(temp, true), r.result = temp, r) : temp;
 		}
 
 		/**
@@ -678,23 +767,21 @@ miJs = miniJs = function () {
 		* @returns {Function}
 		*/
 		this.objectArgument = function() {
-			var arrayLink = Array.prototype.slice.call(arguments),
+			var r, arrayLink = Array.prototype.slice.call(arguments),
 			    ret = function (object) {
 					var listArgs = [],
 					    buildArrguments = function (obj, parrentKey) {
 							miJs.object(obj, true).keys().array().each(function (el) {
-									var index = arrayLink.indexOf(parrentKey + el)
-									if (index !== -1) {
-										listArgs[index] = obj[el]
-									} else {
-										buildArrguments(obj[el], parrentKey + el + '.')
-									}
-								})
-						}
-					buildArrguments(object, '')
-					return currentFunction.apply(this, listArgs)
-				},
-			    r
+								var index = arrayLink.indexOf(parrentKey + el)
+								if (index !== -1)
+									listArgs[index] = obj[el];
+								else
+									buildArrguments(obj[el], parrentKey + el + '.');
+							});
+						};
+					buildArrguments(object, '');
+					return currentFunction.apply(this, listArgs);
+				};
 			return chainFlag ? (r = miJs.function(ret, true), r.result = ret, r) : ret;
 		}
 
@@ -705,27 +792,28 @@ miJs = miniJs = function () {
 		*	@returns {Function}
 		*/
 		this.profile = function() {
-			var ret = function () {
+			var r, ret = function () {
 					var startTime = new Date().getTime(),
 						value = currentFunction.apply(this, arguments),
-						timing = new Date().getTime() - startTime
-					ret.count++
-					ret.time.all.push(timing)
-					return value
-				}, r
+						timing = new Date().getTime() - startTime;
+					ret.count++;
+					ret.time.all.push(timing);
+					return value;
+				};
+
 			ret.time = {
 				max : function () { 
-					return Math.max.apply(Math, ret.time.all)
+					return Math.max.apply(Math, ret.time.all);
 				},
 				min : function () {
-					return Math.min.apply(Math, ret.time.all)
+					return Math.min.apply(Math, ret.time.all);
 				},
 				middle : function () {
-					return miJs.array(ret.time.all).reduce(function(i, old){return i + old;}, 0) / ret.time.all.length
+					return miJs.array(ret.time.all).reduce(function(old, i){return old + i;}, 0) / ret.time.all.length;
 				},
 				all : []
 			}
-			ret.count = 0
+			ret.count = 0;
 			return chainFlag ? (r = miJs.function(ret, true), r.result = ret, r) : ret;
 		}
 
@@ -735,15 +823,15 @@ miJs = miniJs = function () {
 		* If flagCopyResult == true, then result of function set in this.result (default==false)
 		*
 		* @param {Function} cb
-		* @param {Boolean} [flagCopyResult]
+		* @param {Boolean}  [flagCopyResult]
 		* @returns this
 		*/
 		this.externCall = function(cb, flagCopyResult) {
 			var result = cb(currentFunction),
-				r      = miJs.function(result, chainFlag) 
+				r      = miJs.function(result, chainFlag); 
 			if (flagCopyResult)
-				r.result = result
-			return r
+				r.result = result;
+			return r;
 		}
 	}
 }()
