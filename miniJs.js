@@ -12,8 +12,8 @@ miJs = miniJs = function () {
 	* Access to collections as function
 	*
 	* @this {miJs}
-	* @param   {Object | Array | Function} arg                 Object for work
-	* @param   {Boolean}                   [chainFunctionFlag] Use chain function?
+	* @param   {Object | Array | Function | String}  arg                 Object for work
+	* @param   {Boolean}                            [chainFunctionFlag]  Use chain function?
 	* @returns {miJsObject | miJsArray | miJsFunction} 
 	*/
 	var miJsCallback = function (arg, chainFunctionFlag) {
@@ -25,6 +25,10 @@ miJs = miniJs = function () {
 			// Is Function
 			if (typeof arg == 'function')
 				return new miJsFunction(arg, chainFunctionFlag);
+			
+			// Is String
+			if (typeof arg == 'string')
+				return new miJsString(arg, chainFunctionFlag);
 			
 			// Is Object
 			return new miJsObject(arg, chainFunctionFlag);
@@ -68,6 +72,19 @@ miJs = miniJs = function () {
 	*/				
 	miJsCallback.function = function (functionArg, chainFunctionFlag) {
 		return new miJsFunction(functionArg, chainFunctionFlag);
+	}
+
+	/**
+	*
+	* Access for collection functions for work with String
+	*
+	* @this {miJs}
+	* @param {String}    stringArg          String for work
+	* @param {Boolean}  [chainFunctionFlag] Use chain function?
+	* @returns {miJsString}
+	*/				
+	miJsCallback.string = function (stringArg, chainFunctionFlag) {
+		return new miJsString(stringArg, chainFunctionFlag);
 	}
 
 	/**
@@ -833,6 +850,58 @@ miJs = miniJs = function () {
 				r.result = result;
 			return r;
 		}
+	}
+
+	
+	/**
+	 * Create miJsString - collection functions for work with String in JS
+	 * @constructor
+	 * @this {miJsString}
+	 * @param  {String}  currentString     String for work
+	 * @param  {Boolean} chainFunctionFlag Use chain function?
+	 */
+	function miJsString(currentString, chainFunctionFlag) {
+		/**
+		*
+		* Chain Functions flag
+		*/
+		var chainFlag = !!chainFunctionFlag;
+		
+		/**
+		*
+		* Result for chain functions
+		*/
+		this.result = undefined;
+
+		/**
+		*
+		* Change flag chainFlag and if it equal true, return result
+		*
+		* @return [] Return result chain Functions 
+		*/
+
+		this.chain = function () {
+			chainFlag = !chainFlag;
+			return chainFlag ? this : this.result;
+		}
+
+		/**
+		 * Convert currentString to function
+		 * @return {Function} Function after parsing currentString
+		 */
+		this.lambda = function() {
+		    var args = [],
+			    expr = currentString,
+			    func;
+		    if (/\s*:\s*/.test(expr) != null) {
+	            exprArgs = currentString.split(/\s*:\s*/);
+	            args = exprArgs[0].split(/\s*,\s*|\s+/m);
+	            expr = exprArgs.slice(1).join(':');
+		    } else
+		        throw "String '" + currentString + "' can\'t convert to Function";
+		    return new Function(args, 'return (' + expr + ')');
+		}
+
 	}
 }();
 
