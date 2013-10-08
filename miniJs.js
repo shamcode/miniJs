@@ -173,14 +173,15 @@ miJs = miniJs = function () {
 			// recursively clone
 			var result = function (obj, keyArray, ignoreKey) {
 				var localResult = (obj instanceof Array) ? [] : {};
-				for (var i = 0; i < obj.length; i++) {
-					if (keyArray && 
+				for (var i = 0, keys=miJs.object(obj).keys(); i < keys.length; i++) {
+					var key = keys[i];
+                    if (keyArray &&
 						(!!ignoreKey == (
-							keyArray && keyArray.indexOf ? (keyArray.indexOf(i) !== -1) : miJs.object(i).in(keyArray))
+							keyArray && keyArray.indexOf ? (keyArray.indexOf(key) !== -1) : miJs.object(key).in(keyArray))
 						)
 					)
 						continue;
-					localResult[i] = typeof obj[i] == 'object' ? arguments.callee(obj[i]) : obj[i];
+					localResult[key] = typeof obj[key] == 'object' ? arguments.callee(obj[key]) : obj[key];
 				}
 				return localResult;
 			} (currentObject, keyArray, ignoreKey);
@@ -195,7 +196,7 @@ miJs = miniJs = function () {
 				}
 			} else
 				return result;
-		}
+		};
 
 		/**
 		*
@@ -214,21 +215,22 @@ miJs = miniJs = function () {
 					return false;
 				if (first.length == undefined && first.toString() != second.toString()) 
 					return false;
-				for (var i = 0; i < first.length; i++) 
-					if (typeof first[i] == 'object') {
-						if (!(second[i] && arguments.callee(first[i], second[i])))
+				for (var i = 0, keys = miJs.object(first).keys(); i < keys.length; i++) {
+					var key = keys[i];
+                    if (typeof first[key] == 'object') {
+						if (!(second[key] && arguments.callee(first[key], second[key])))
 							return false;
-					} else if (typeof first[i] == 'function') {
-						if (first[i].toString() != second[i].toString()) 
+					} else if (typeof first[key] == 'function') {
+						if (first[key].toString() != second[key].toString())
 							return false;
-					} else 
-						if (first[i] !== second[i]) 
-							return false;
+					} else if (first[key] !== second[key])
+                        return false;
+                }
 				return true;	
 			} (currentObject, testObject);
 
 			return chainFlag ? (this.result = result, this) : result;
-		}
+		};
 
 		/**
 		*
@@ -346,7 +348,7 @@ miJs = miniJs = function () {
 			if (Object.keys !== undefined) 
 				return chainFlag ? (this.result = Object.keys(currentObject), this) : Object.keys(currentObject);
 			var arrayOfKey = [];
-			for (var i = 0; i < currentObject.length; i++) 
+			for (var i in currentObject)
 				arrayOfKey.push(i);
 			return chainFlag ? (this.result = arrayOfKey, this) : arrayOfKey;
 		}
@@ -901,9 +903,5 @@ miJs = miniJs = function () {
 		        throw "String '" + currentString + "' can\'t convert to Function";
 		    return new Function(args, 'return (' + expr + ')');
 		}
-
 	}
 }();
-
-
-

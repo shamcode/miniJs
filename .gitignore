@@ -3,10 +3,4 @@ bin-debug/
 bin-release/
 
 # Project property files
-.settings/
-.project
-
-# Test folders
-test/
-miJs.sublime-project
-miJs.sublime-workspace
+.idea
