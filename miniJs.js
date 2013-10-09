@@ -53,7 +53,7 @@ miJs = miniJs = function () {
 	* Access for collection functions for work with Array
 	*
 	* @this {miJs}
-	* @param   {Array}   functionArg         Array for work
+	* @param   {Array}   arrayArg         Array for work
 	* @param   {Boolean} [chainFunctionFlag] Use chain function?
 	* @returns {miJsArray}
 	*/
@@ -72,7 +72,7 @@ miJs = miniJs = function () {
 	*/				
 	miJsCallback.function = function (functionArg, chainFunctionFlag) {
 		return new miJsFunction(functionArg, chainFunctionFlag);
-	}
+	};
 
 	/**
 	*
@@ -85,7 +85,7 @@ miJs = miniJs = function () {
 	*/				
 	miJsCallback.string = function (stringArg, chainFunctionFlag) {
 		return new miJsString(stringArg, chainFunctionFlag);
-	}
+	};
 
 	/**
 	*
@@ -98,21 +98,21 @@ miJs = miniJs = function () {
 		for (var i = 0; i < arguments.length; i++)
 			alertString += i + ": " + arguments[i] + '\n';
 		alert(alertString);
-	}
+	};
 
 	/**
 	*
 	* Create timer
 	*
-	* @returns {Function}      callback
-	* @returns {callback.Date} Time after calling miJs.timer
+	* @returns {Function} callback
+	* @returns {Function} Time after calling miJs.timer
 	*/
 	miJsCallback.timer = function() {
 		var startTime = new Date().getTime();
 		return function() {
 			return (new Date().getTime() - startTime);
 		}
-	}
+	};
 
 	/**
 	*
@@ -158,7 +158,7 @@ miJs = miniJs = function () {
 		this.chain = function () {
 			chainFlag = !chainFlag;
 			return chainFlag ? this : this.result;
-		}
+		};
 
 		/**
 		* The object cloning
@@ -173,7 +173,7 @@ miJs = miniJs = function () {
 			// recursively clone
 			var result = function (obj, keyArray, ignoreKey) {
 				var localResult = (obj instanceof Array) ? [] : {};
-				for (var i = 0, keys=miJs.object(obj).keys(); i < keys.length; i++) {
+				for (var i = 0, keys = miJs.object(obj).keys(); i < keys.length; i++) {
 					var key = keys[i];
                     if (keyArray &&
 						(!!ignoreKey == (
@@ -206,15 +206,21 @@ miJs = miniJs = function () {
 		* @returns {Boolean} Result
 		*/
 		this.equal = function (testObject) {
-			currentObject = this.result || currentObject
+			currentObject = this.result || currentObject;
 			// recursively test
 			var result = function(first, second) {
 				if (first == undefined || second == undefined) 
 					return first == second;
 				if (first.length != second.length) 
 					return false;
-				if (first.length == undefined && first.toString() != second.toString()) 
+				if (first.toString() != second.toString())
 					return false;
+                if (!isNaN(first) && !isNaN(second))
+                    return first == second;
+                if ((typeof first == 'string' || first instanceof String) &&
+                    (typeof second == 'string' || second instanceof String)
+                )
+                    return first == second;
 				for (var i = 0, keys = miJs.object(first).keys(); i < keys.length; i++) {
 					var key = keys[i];
                     if (typeof first[key] == 'object') {
@@ -245,7 +251,7 @@ miJs = miniJs = function () {
 				if (miJs.object(currentObject).equal(array[i])) 
 					return chainFlag ? (this.result = true, this) : true;
 			return chainFlag ? (this.result = false, this) : false;
-		}
+		};
 
 		/**
 		*
@@ -271,7 +277,7 @@ miJs = miniJs = function () {
 			
 			if (chainFlag)
 				return this;
-		}
+		};
 
 		/**
 		*
