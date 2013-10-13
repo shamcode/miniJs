@@ -100,6 +100,105 @@ test('in()', function () {
     ok(!miJs.object(foo, true).clone().in([1, 2]).result, 'Работа в цепочке 2');
 });
 
+test('set()', function () {
+    var foo = {
+            x: 1,
+            y: 2,
+            dot: {
+                x: 3,
+                y: 4
+            },
+            innerArray: [1, 3]
+        };
+
+    miJs.object(foo).set({
+        x: 6,
+        dot:{x:5},
+        innerArray:[3, 4]
+    });
+    equal(foo.x, 6, 'Простое присваивание');
+    equal(foo.dot.x, 5, 'Вложенный объект');
+    deepEqual(foo.innerArray, [3, 4], 'Массив');
+    equal(foo.y, 2, 'Не изменяем не нужные');
+    equal(foo.dot.y, 4, 'Не меняем вложенный объект');
+
+    miJs.object(foo).set({
+            z: 6,
+            x: 1
+        },
+        true
+    );
+    equal(foo.z, 6, 'Меняем только те, которые undefined');
+    equal(foo.x, 6, 'Не меняем, если не undefined');
+
+    miJs.object(foo).set({
+            x: 1,
+            y: 5,
+            dot: {
+                y: 3
+            }
+        },
+        function (currentObject, setObject, key) {
+            return (!!(key == 'y'));
+        }
+    );
+    equal(foo.y, 5, 'Фильтрация по функции (присваиваем)');
+    equal(foo.x, 6, 'Фильтрация по функции (не присваиеваем)');
+    equal(foo.dot.y, 4, 'Фильтрация по функции, вложенные объект');
+
+    equal(miJs.object(foo, true).set({x:1}).clone().result.x, 1, 'Работа в цепочке');
+});
+
+test('diff()', function () {
+    var foo = {
+            x: 1,
+            y: 2,
+            dot: {
+                x: 3,
+                y: 4
+            },
+            innerArray: [1, 2, 3]
+        },
+        bar = {
+            x: 1,
+            y: 3,
+            dot: {
+                x: 4,
+                y: 4
+            },
+            innerArray: [1, 3, 2]
+        };
+
+    deepEqual(miJs.object(foo).diff(bar), {
+       y: 2,
+       dot: {
+           x: 3,
+           y: 4
+       },
+       innerArray: [1, 2, 3]
+    }, 'Копируем из первого');
+
+    deepEqual(miJs.object(foo).diff(bar, true), {
+        y: 3,
+        dot: {
+            x: 4,
+            y: 4
+        },
+        innerArray: [1, 3, 2]
+    }, 'Копируем из второго');
+
+    deepEqual(miJs.object(foo, true).diff(bar).result, {
+        y: 2,
+        dot: {
+            x: 3,
+            y: 4
+        },
+        innerArray: [1, 2, 3]
+    }, 'Работа в цепочке');
+
+
+});
+
 
 
 

@@ -259,17 +259,19 @@ miJs = miniJs = function () {
 		*
 		* @param {Array}   [keyArray] Array of keys
 		* @param {Boolean} [showThis] Show key-value, if it not in keyArray
+        * @returns {Object|undefined}
 		*/
 		this.alert = function (keyArray, showThis) {
 			currentObject = (this.result !== undefined) ? this.result : currentObject;
 			var showString = "";
-			for (var i = 0; i < currentObject.length; i++)
-				if (showThis) 
-					showString += miniJs.object(i).in(keyArray) ? "" : i + "=" + currentObject[i].toString() + '\n';
+			for (var i = 0, keys = currentObject.keys(); i < keys.length; i++) {
+				var key = keys[i];
+                if (showThis)
+					showString += miniJs.object(key).in(keyArray) ? "" : key + "=" + currentObject[key].toString() + '\n';
 				else
-					showString += keyArray ? (miniJs.object(i).in(keyArray) ? i + "=" + currentObject[i].toString() + '\n': "") : 
-											 i + "=" + (currentObject[i] == undefined ? '' : currentObject[i].toString()) + '\n';
-			
+					showString += keyArray ? (miniJs.object(key).in(keyArray) ? key + "=" + currentObject[key].toString() + '\n': "") :
+											 key + "=" + (currentObject[key] == undefined ? '' : currentObject[key].toString()) + '\n';
+            }
 			if ((typeof currentObject != 'object') > (currentObject instanceof Array))
 				showString = currentObject.toString();
 			
@@ -283,33 +285,39 @@ miJs = miniJs = function () {
 		*
 		* Set value in object. If key not found in object, it will add.
 		*
-		* @param {Object}           setValue   Object with value for seting
-		* @param {Boolean|Function} [filter]   Set value if current key in currentObject undefineded, 
-		*									   else not seting or call function filter for all key and 
+		* @param {Object}           setValue   Object with value for sating
+		* @param {Boolean|Function} [filter]   Set value if current key in currentObject is undefined,
+		*									   else sating or call function filter for all key and
 		*									   object. if filter return true, then value will set.
+        * @returns {Object|undefined}
 		*/
 		this.set = function(setValue, filter) {
 			currentObject = this.result || currentObject;
 			var isFunction = typeof filter == 'function';
-			for (var i = 0; i < setValue.length; i++) {
-				if (isFunction) {
-					if (!filter(currentObject, setValue, i))
+			for (var i = 0, keys=miJs.object(setValue).keys(); i < keys.length; i++) {
+				var key = keys[i];
+                if (isFunction) {
+					if (!filter(currentObject, setValue, key)) {
 						continue;
-				} else if (filter && currentObject[i] !== undefined) 
+                    }
+				} else if (filter && currentObject[key] !== undefined) {
 					continue;
+                }
 
-				if (typeof setValue[i] == 'object') {
-					if (currentObject[i] == undefined) 
-						currentObject[i] = setValue[i] instanceof Array ? [] : {};
-					miniJs.object(currentObject[i]).set(setValue[i], filter);
-				} else if (typeof setValue[i] == 'function')
-					currentObject[i] = miniJs.function(setValue[i]).clone();
-				else
-					currentObject[i] = setValue[i];
+				if (typeof setValue[key] == 'object') {
+					if (currentObject[key] == undefined) {
+						currentObject[key] = setValue[key] instanceof Array ? [] : {};
+                    }
+					miniJs.object(currentObject[key]).set(setValue[key], filter);
+				} else if (typeof setValue[key] == 'function') {
+					currentObject[key] = miniJs.function(setValue[key]).clone();
+                } else {
+					currentObject[key] = setValue[key];
+                }
 			}
 			if (chainFlag)
 				return this;
-		}
+		};
 
 		/**
 		*
@@ -318,9 +326,10 @@ miJs = miniJs = function () {
 		this.with = function () {
 			currentObject = this.result || currentObject;
 			miniJs.this = currentObject;
-			if (chainFlag)
+			if (chainFlag) {
 				return this;
-		}
+            }
+		};
 
 		/**
 		*
@@ -335,13 +344,15 @@ miJs = miniJs = function () {
 		this.diff = function(compareObj, fromCompareObject) {
 			currentObject = this.result || currentObject;
 			var diffArrayKey = [];
-			for (var i = 0; i < currentObject.length; i++)
-				if (!(compareObj[i] && miJs.object(currentObject[i]).equal(compareObj[i])));
-					diffArrayKey.push(i);
+			for (var i = 0, keys = miJs.object(currentObject).keys(); i < keys.length; i++) {
+				var key = keys[i];
+                if (!miJs.object(currentObject[key]).equal(compareObj[key])) {
+					diffArrayKey.push(key);
+                }
+            }
 			var diffObject = miJs.object(fromCompareObject ? compareObj : currentObject).clone(diffArrayKey);
-			
 			return chainFlag ? (this.result = diffObject, this) : diffObject;
-		}
+		};
 
 		/**
 		*
@@ -354,10 +365,11 @@ miJs = miniJs = function () {
 			if (Object.keys !== undefined) 
 				return chainFlag ? (this.result = Object.keys(currentObject), this) : Object.keys(currentObject);
 			var arrayOfKey = [];
-			for (var i in currentObject)
-				arrayOfKey.push(i);
+			for (var i in currentObject) {
+                arrayOfKey.push(i);
+            }
 			return chainFlag ? (this.result = arrayOfKey, this) : arrayOfKey;
-		}
+		};
 
 		/**
 		*
@@ -369,7 +381,7 @@ miJs = miniJs = function () {
 		this.value = function (key) {
 			currentObject = this.result || currentObject;
 			return chainFlag ? (this.result = currentObject[key], this) : currentObject[key];
-		}
+		};
 
 		/**
 		*
@@ -384,7 +396,7 @@ miJs = miniJs = function () {
 				if (miJs.object(currentObject[i]).equal(value))
 					return chainFlag ? (this.result = i, this) : i;
 			return chainFlag ? (this.result = undefined, this) : undefined;
-		}
+		};
 
 		/**
 		*
@@ -396,7 +408,7 @@ miJs = miniJs = function () {
 			currentObject = this.result || currentObject;
 			var arrayWork = miJs.array(currentObject, chainFlag);
 			return chainFlag ? (arrayWork.result = currentObject, arrayWork) : arrayWork;
-		}
+		};
 
 		/**
 		*
@@ -408,7 +420,7 @@ miJs = miniJs = function () {
 			currentObject = this.result || currentObject;
 			var functionWork = miJs.function(currentObject, chainFlag);
 			return chainFlag ? (functionWork.result = currentObject, functionWork) : functionWork;
-		}
+		};
 
 		/**
 		*
@@ -425,7 +437,7 @@ miJs = miniJs = function () {
 			if (flagCopyResult)
 				this.result = result;
 			return this;
-		}
+		};
 	}
 
 
