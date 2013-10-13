@@ -362,8 +362,9 @@ miJs = miniJs = function () {
 		*/
 		this.keys = function () {
 			currentObject = this.result || currentObject;
-			if (Object.keys !== undefined) 
+			if (Object.keys !== undefined) {
 				return chainFlag ? (this.result = Object.keys(currentObject), this) : Object.keys(currentObject);
+            }
 			var arrayOfKey = [];
 			for (var i in currentObject) {
                 arrayOfKey.push(i);
@@ -392,9 +393,12 @@ miJs = miniJs = function () {
 		*/
 		this.key = function(value) {
 			currentObject = this.result || currentObject;
-			for (var i = 0; i < currentObject; i++) 
-				if (miJs.object(currentObject[i]).equal(value))
-					return chainFlag ? (this.result = i, this) : i;
+			for (var i = 0, keys = miJs.object(currentObject).keys(); i < keys.length; i++) {
+				var key = keys[i];
+                if (miJs.object(currentObject[key]).equal(value)) {
+					return chainFlag ? (this.result = key, this) : key;
+                }
+            }
 			return chainFlag ? (this.result = undefined, this) : undefined;
 		};
 
@@ -474,7 +478,7 @@ miJs = miniJs = function () {
 		this.chain = function () {
 			chainFlag = !chainFlag;
 			return chainFlag ? this : this.result;
-		}
+		};
 
 
 		/**
@@ -486,7 +490,7 @@ miJs = miniJs = function () {
 		this.clone = function () {
 			currentArray = this.result || currentArray;
 			return chainFlag ? (this.result = currentArray.slice(0), this) : currentArray.slice(0);
-		}
+		};
 
 		/**
 		*

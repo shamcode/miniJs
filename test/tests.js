@@ -195,12 +195,76 @@ test('diff()', function () {
         },
         innerArray: [1, 2, 3]
     }, 'Работа в цепочке');
-
-
 });
 
+test('keys()', function () {
+    var foo = {
+        x: 1,
+         dot: {y:2},
+        innerArray: [1, 2, 3]
+    };
+    deepEqual(miJs.object(foo).keys(), ['x', 'dot', 'innerArray'], 'Простая проверка');
 
+    deepEqual(miJs.object(foo, true).keys().result, ['x', 'dot', 'innerArray'], 'Работа в цепочке');
+});
 
+test('value()', function () {
+    var foo = {
+        x: 1,
+        dot: {y:2}
+    };
+
+    equal(miJs.object(foo).value('x'), 1, 'Простая проверка');
+
+    deepEqual(miJs.object(foo).value('dot'), {y:2}, 'Проверка объекта');
+
+    equal(miJs.object(foo, true).clone().value('x').result, 1, 'Работа в цепочке');
+});
+
+test('key()', function () {
+    var foo = {
+        x: 1,
+        dot: {
+            x: 3,
+            y: 4
+        },
+        innerArray: [1, 2, 3],
+        string: 'test'
+    };
+
+    equal(miJs.object(foo).key(1), 'x', 'Простая проверка');
+
+    equal(miJs.object(foo).key({
+        x: 3,
+        y: 4
+    }), 'dot', 'Вложеный объект');
+
+    equal(miJs.object(foo).key([1, 2, 3]), 'innerArray', 'Вложеный массив');
+
+    equal(miJs.object(foo).key('test'), 'string', 'Вложеная строка');
+
+    equal(miJs.object(foo).key(5), undefined, 'Несуществующий');
+
+    equal(miJs.object(foo, true).clone().key(1).result, 'x', 'Работа в цепочке');
+});
+
+test('externCall()', function () {
+    var foo = {
+            x: 1,
+            y: 2
+        },
+        callBack = function (i) {
+            i.x = 3;
+            return 5;
+        };
+
+    miJs.object(foo).externCall(callBack);
+    equal(foo.x, 3, 'Без копирования результата');
+
+    equal(miJs.object(foo).externCall(callBack, true).result, 5, 'С копированием результата');
+
+    equal(miJs.object(foo, true).clone().externCall(callBack, true).result, 5, 'Работа в цепочке');
+});
 
 
 
