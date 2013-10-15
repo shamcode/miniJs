@@ -528,8 +528,8 @@ miJs = miniJs = function () {
 		*
 		* Iteration run functions for all elements in array and return array of result
 		*
-		* @param   {Function} f Callback
-		* @returns {Array}      Results function f
+		* @param   {Function}     f Callback
+		* @returns {Array|Object} Results function f
 		*/
 		this.map = function(f) {
 			currentArray = this.result || currentArray;
@@ -572,51 +572,56 @@ miJs = miniJs = function () {
 			var result = [];
 			for (var el = 0; el < currentArray.length; el++) {
 				if (!miJs.object(currentArray[el]).in(result)) {
-					var count = 0;
-					for (var i = 0; i < currentArray.length; i++) {
-						if (miJs.object(currentArray[el]).equal(currentArray[i]))
+					var count = 1;
+					for (var i = el + 1; i < currentArray.length; i++) {
+						if (miJs.object(currentArray[el]).equal(currentArray[i])) {
 							count++;
+                        }
 						if (count > 1) {
-							result.push(currentArray[el])
+							result.push(currentArray[el]);
 							break
 						}
 					}
-					if (count == 1) 
+					if (count == 1) {
 						result.push(currentArray[el]);
+                    }
 				}
 			}
 			return chainFlag ? (this.result = result, this) : result;
-		}
+		};
 
 		/**
 		*
-		* Delete all element equal passed in array 
+		* Return a new array with no specified item
 		*
-		* @param   {Object} element Finding elem
+		* @param   {*} element Finding elem
 		* @returns {Array}
 		*/
 		this.delete = function (element) {
-			var result = this.filter(function(i) {
-				return !miJs.object(i).equal(element)
-			})
-			return chainFlag ? this : result;
-		}
+			return this.filter(function(i) {
+                return !miJs.object(i).equal(element)
+            });
+		};
 
 		/**
 		* 
 		* All element of currentArray passed in function f
 		*
 		* @param {Function} f Function for work
+        * @returns {Array|Object}
 		*/
 		this.each = function (f) {
 			currentArray = this.result || currentArray;
-			if (currentArray.forEach !== undefined)
+			if (currentArray.forEach !== undefined) {
 				return chainFlag ? (currentArray.forEach(f), this) : currentArray.forEach(f);
-			for (var i = 0; i < currentArray.length; i++)
+            }
+			for (var i = 0; i < currentArray.length; i++) {
 				f(currentArray[i]);
-			if (chainFlag)
+            }
+			if (chainFlag) {
 				return this;
-		}
+            }
+		};
 
 		/**
 		*
@@ -628,7 +633,7 @@ miJs = miniJs = function () {
 		this.value = function(index) {
 			currentArray = this.result || currentArray;
 			return chainFlag ? (this.result = currentArray[index], this) : currentArray[index];
-		}
+		};
 
 		/**
 		*
@@ -640,11 +645,13 @@ miJs = miniJs = function () {
 		*/
 		this.index = function(element, flag) {
 			currentArray = this.result || currentArray;
-			for (var i = 0; i < currentArray.length; i++) 
-				if (flag ? element(currentArray[i]) : miJs.object(currentArray[i]).equal(element))
+			for (var i = 0; i < currentArray.length; i++) {
+				if (flag ? element(currentArray[i]) : miJs.object(currentArray[i]).equal(element)) {
 					return chainFlag ? (this.result = i, this) : i;
+                }
+            }
 			return chainFlag ? (this.result = i, this) : undefined;
-		}
+		};
 		
 
 		/**
@@ -657,7 +664,7 @@ miJs = miniJs = function () {
 			currentArray = this.result || currentArray;
 			var objectWork = miJs.object(currentArray, chainFlag);
 			return chainFlag ? (objectWork.result = currentArray, objectWork) : objectWork;
-		}
+		};
 
 		/**
 		*
@@ -669,25 +676,27 @@ miJs = miniJs = function () {
 			currentArray = this.result || currentArray;
 			var functionWork = miJs.function(currentArray, chainFlag);
 			return chainFlag ? (functionWork.result = currentArray, functionWork) : functionWork;
-		}
+		};
 		/**
 		*
 		* Reduce function
 		* 
 		* @param {Function} f
 		* @param start
-		* @returns 
+		* @returns {*}
 		*/
 		this.reduce = function(f, start) {
 			currentArray = this.result || currentArray;
 			var ret = start;
-			if (currentArray.reduce) 
+			if (currentArray.reduce) {
 				ret = currentArray.reduce(f, ret);
-			else 
-				for (var i = 0; i < currentArray.length; i++) 
+            } else {
+				for (var i = 0; i < currentArray.length; i++) {
 					ret = f(ret, currentArray[i]);
+                }
+            }
 			return chainFlag ? (this.result = ret, this) : ret;
-		}
+		};
 
 		/**
 		*
@@ -701,10 +710,25 @@ miJs = miniJs = function () {
 		this.externCall = function(cb, flagCopyResult) {
 			currentArray = this.result || currentArray;
 			var result = cb(currentArray);
-			if (flagCopyResult)
+			if (flagCopyResult) {
 				this.result = result;
+            }
 			return this;
-		}
+		};
+
+        /**
+         *
+         * Set link to current array in miniJs.this
+         * returns {*}
+         */
+        this.with = function () {
+            currentArray = this.result || currentArray;
+            miniJs.this = currentArray;
+            if (chainFlag) {
+                return this;
+            }
+        };
+
 	}
 
 

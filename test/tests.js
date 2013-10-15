@@ -301,6 +301,114 @@ test('equal()', function () {
 });
 
 
+test('map()', function () {
+    var foo = [1, 2, 3],
+        func = function (x) {return x * x;};
+
+    deepEqual(miJs.array(foo).map(func), [1, 4, 9], 'Простая проверка');
+    deepEqual(miJs.array(foo, true).clone().map(func).result, [1, 4, 9], 'Работа в цепочке');
+});
+
+
+test('filter()', function () {
+    var foo = [1, 2, 3, 4],
+        func = function (x) {return x % 2 == 0; };
+
+    deepEqual(miJs.array(foo).filter(func), [2, 4], 'Простая проверка');
+    deepEqual(miJs.array(foo, true).clone().filter(func).result, [2, 4], 'Работа в цепочке')
+});
+
+
+test('uniq()', function () {
+    var foo = [0, 1, 3, 1, 2, 3, 4, 5, 6, 7, 6, 6, 7, 8, 9, 0];
+
+    deepEqual(miJs.array(foo).uniq(), [0, 1, 3, 2, 4, 5, 6, 7, 8, 9], 'Простая проверка');
+    deepEqual(miJs.array(foo, true).clone().uniq().result, [0, 1, 3, 2, 4, 5, 6, 7, 8, 9], 'Работа в цепочке');
+});
+
+
+test('delete()', function () {
+    var foo = [0, 1, 2, 1, 1, 2, 'test', 3, 4, 1];
+
+    deepEqual(miJs.array(foo).delete(1), [0, 2, 2, 'test', 3, 4], 'Простая проверка');
+    deepEqual(miJs.array(foo, true).delete(1).clone().result, [0, 2, 2, 'test', 3, 4], 'Работа в цепочке');
+});
+
+
+test('each()', function () {
+    var foo = [1, 2, 3, 4, 5],
+        bar = [],
+        func = function (x) {bar.push(x * x);};
+
+    miJs.array(foo).each(func);
+    deepEqual(bar, [1, 4, 9, 16, 25], 'Простая проверка');
+
+    bar = [];
+    miJs.array(foo, true).each(func).clone();
+    deepEqual(bar, [1, 4, 9, 16, 25], 'Работа в цепочке');
+});
+
+
+test('value', function () {
+    var foo = [1, 2, 'test'];
+
+    equal(miJs.array(foo).value(0), 1, 'Простая проверка');
+
+    equal(miJs.array(foo).value(2), 'test', 'Простая проверка 2');
+
+    equal(miJs.array(foo, true).clone().value(2).result, 'test', 'Работа в цепочке');
+});
+
+
+test('index()', function () {
+    var foo = [1, 2, {x: 3}, 'test', [4, 5]];
+
+    equal(miJs.array(foo).index(1), 0, 'Простая проверка');
+
+    equal(miJs.array(foo).index({x:3}), 2, 'Поиск объекта в массиве');
+
+    equal(miJs.array(foo).index('test'), 3, 'Поиск строки');
+
+    equal(miJs.array(foo).index([4, 5]), 4, 'Вложенный массив');
+
+    equal(miJs.array(foo).index('bar'), undefined, 'Если не найдено');
+
+    equal(miJs.array(foo, true).index([4, 5]).result, 4, 'Работа в цепочке');
+});
+
+
+test('reduce()', function () {
+    var foo = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        func = function (last, current) {return last + current};
+
+    equal(miJs.array(foo).reduce(func, 0), 55, 'Простая проверка');
+
+    equal(miJs.array(foo).reduce(func, 45), 100, 'Другое стартовое значение');
+
+    equal(miJs.array(foo, true).clone().reduce(func, 0).result, 55, 'Работа в цепочке');
+});
+
+
+test('externCall()', function () {
+    var foo = [1, 2, 3, 4],
+        tmp,
+        func = function(a) {
+            var sum = 0;
+            for (var i = 0; i < a.length; i++) {
+                sum += a[i];
+            }
+            tmp = sum;
+            return sum;
+        };
+
+    miJs.array(foo).externCall(func);
+    equal(tmp, 10, 'Простая проверка');
+
+    equal(miJs.array(foo).externCall(func, true).result, 10, 'С копированием результата');
+
+    equal(miJs.array(foo, true).clone().externCall(func, true).result, 10, 'Работа в цепочке');
+});
+
 
 
 
