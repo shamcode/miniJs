@@ -267,5 +267,40 @@ test('externCall()', function () {
 });
 
 
+module('miJs.array');
+
+test('clone()', function () {
+    var foo = [1, 2, {x:3}];
+        bar = miJs.array(foo).clone();
+
+    deepEqual(foo, bar, 'Проверка клонирования');
+
+    bar[2].x = 4;
+    equal(foo[2].x, 3, 'Изменения копии не влияют на исходный');
+
+    foo[2].x = 5;
+    equal(bar[2].x, 4, 'Изменения исходного не влияют на копию');
+
+    equal(miJs.array([1, 2, 3], true).clone().result[1], 2, 'Работа в цепочке');
+});
+
+test('equal()', function () {
+    var foo = [1, 2, {x:3}, [4, 5]],
+        bar = miJs.array(foo).clone();
+
+    ok(miJs.array(foo).equal(bar), 'Проверка');
+
+    foo[2].x = 4;
+    ok(!miJs.array(foo).equal(bar), 'Изменили исходный');
+
+    bar = miJs.array(foo).clone();
+    bar[3] = 'test';
+    ok(!miJs.array(foo).equal(bar), 'Изменили копию');
+
+    ok(miJs.array(foo, true).clone().equal(miJs.array(foo).clone()), 'Работа в цепочке');
+});
+
+
+
 
 

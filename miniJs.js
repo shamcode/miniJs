@@ -489,7 +489,7 @@ miJs = miniJs = function () {
 		*/
 		this.clone = function () {
 			currentArray = this.result || currentArray;
-			return chainFlag ? (this.result = currentArray.slice(0), this) : currentArray.slice(0);
+			return chainFlag ? (this.result = miJs.object(currentArray).clone(), this) : miJs.object(currentArray).clone();
 		};
 
 		/**
@@ -502,7 +502,7 @@ miJs = miniJs = function () {
 		this.equal = function (arr) {
 			currentArray = this.result || currentArray;
 			return chainFlag ? (this.result = miJs.object(currentArray).equal(arr), this): miJs.object(currentArray).equal(arr);
-		}
+		};
 
 		/*
 		*
@@ -512,31 +512,36 @@ miJs = miniJs = function () {
 		this.alert = function () {
 			currentArray = (this.result !== undefined) ? this.result : currentArray;
 			var showString = '';
-			for (var i = 0; i < currentArray.length; i++)
+			for (var i = 0; i < currentArray.length; i++) {
 				showString += i + '=' + currentArray[i].toString() + '\n';
-			if (typeof currentArray != 'object')
+            }
+			if (typeof currentArray != 'object') {
 				showString += "" + currentArray;
+            }
 			alert (showString);
-			if (chainFlag) 
+			if (chainFlag) {
 				return this;
-		}
+            }
+		};
 
 		/**
 		*
-		* Iter run functions for all elements in array and return aray of result
+		* Iteration run functions for all elements in array and return array of result
 		*
 		* @param   {Function} f Callback
 		* @returns {Array}      Results function f
 		*/
 		this.map = function(f) {
 			currentArray = this.result || currentArray;
-			if (currentArray.map !== undefined) 
+			if (currentArray.map !== undefined) {
 				return chainFlag ? (this.result = currentArray.map(f), this) : currentArray.map(f);
+            }
 			var result = [];
-			for (var i = 0; i < currentArray.length; i++)
+			for (var i = 0; i < currentArray.length; i++) {
 				result.push(f(currentArray[i]));
+            }
 			return chainFlag ? (this.result = result, this) : result;
-		}
+		};
 
 		/**
 		*
@@ -554,7 +559,7 @@ miJs = miniJs = function () {
 				if (f(currentArray[i])) 
 					result.push(currentArray);
 			return chainFlag ? (this.result = result, this) : result;
-		}
+		};
 
 		/**
 		*
