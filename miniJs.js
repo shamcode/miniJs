@@ -765,7 +765,7 @@ miJs = miniJs = function () {
 		this.chain = function () {
 			chainFlag = !chainFlag;
 			return chainFlag ? this : this.result;
-		}
+		};
 
 		/*
 		* Decorator caching functions
@@ -774,9 +774,11 @@ miJs = miniJs = function () {
 		*/
 		this.cache = function () {
 		    var ret = function () {
-		        for (var i in ret.base.argument) 
-		            if (ret.base.argument.hasOwnProperty(i) && miniJs.object(ret.base.argument[i]).equal(arguments)); 
+		        for (var i in ret.base.argument)  {
+		            if (ret.base.argument.hasOwnProperty(i) && miniJs.object(ret.base.argument[i]).equal(arguments)) {
 		                return ret.base.retValue[i];
+                    }
+                }
 		        ret.base.argument.push(arguments);
 		        var value = currentFunction.apply(this, arguments);
 		        ret.base.retValue.push(value);
@@ -785,7 +787,7 @@ miJs = miniJs = function () {
 		    var r;
 		    ret.base = {argument: [], retValue: []};
 			return chainFlag ? (r = miJs.function(ret, true), r.result = ret, r) : ret;
-		}
+		};
 
 		/**
 		*
@@ -802,7 +804,7 @@ miJs = miniJs = function () {
 			var r;
 			ret.log = [];
 			return chainFlag ? (r = miJs.function(ret, true), r.result = ret, r) : ret;
-		}
+		};
 
 		/**
 		*
@@ -811,14 +813,15 @@ miJs = miniJs = function () {
 		* @returns {Function} Clone function
 		*/
 		this.clone = function() {
-		    var temp = function temporary() {
+		    var temp = function () {
 		    	return currentFunction.apply({}, arguments)
 		    };
 		    var r;
-		    for(var key in currentFunction) 
-		        temp[key] = currentFunction[key];
+		    for(var i in currentFunction) {
+		        temp[i] = miJs(currentFunction[i]).clone();
+            }
 		    return chainFlag ? (r = miJs.function(temp, true), r.result = temp, r) : temp;
-		}
+		};
 
 		/**
 		*
@@ -853,7 +856,7 @@ miJs = miniJs = function () {
 					return currentFunction.apply(this, listArgs);
 				};
 			return chainFlag ? (r = miJs.function(ret, true), r.result = ret, r) : ret;
-		}
+		};
 
 		/**
 		*
@@ -936,7 +939,7 @@ miJs = miniJs = function () {
 		this.chain = function () {
 			chainFlag = !chainFlag;
 			return chainFlag ? this : this.result;
-		}
+		};
 
 		/**
 		 * Convert currentString to function

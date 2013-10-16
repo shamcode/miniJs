@@ -410,5 +410,33 @@ test('externCall()', function () {
 });
 
 
+module('miJs.function');
+
+test('cache()', function () {
+    var foo = function (x, y) {return x + y},
+        bar = miJs.function(foo).cache();
+
+    deepEqual(bar.base, {argument: [], retValue: []}, 'Добавление кэширования');
+
+    equal(bar(1, 2), 3, 'Функция после добавления кэширования работает так же');
+
+    deepEqual(bar.base, {argument:[{'0':1, '1':2}], retValue:[3]}, 'Содержимого кэша изменилось');
+
+    equal(bar(1, 2), 3, 'Работа из кэша');
+
+    deepEqual(bar.base, {argument:[{'0':1, '1':2}], retValue:[3]}, 'Содержимого кэша не изменилось');
+
+    equal(bar(41, 1), 42, 'Без кэшированных данных функция продолжает работать');
+
+    deepEqual(bar.base, {argument:[{'0':1, '1':2}, {'0':41, '1':1}], retValue:[3, 42]}, 'Содержимого кэша изменилось');
+
+    equal(bar(41, 1), 42, 'Работа после добавления');
+
+    deepEqual(bar.base, {argument:[{'0':1, '1':2}, {'0':41, '1':1}], retValue:[3, 42]}, 'Содержимого кэша неизменилось');
+
+    deepEqual(miJs.function(foo, true).clone().cache().result.base, {argument:[], retValue:[]}, 'Работа в цепочке');
+});
+
+
 
 
