@@ -437,6 +437,44 @@ test('cache()', function () {
     deepEqual(miJs.function(foo, true).clone().cache().result.base, {argument:[], retValue:[]}, 'Работа в цепочке');
 });
 
+test('log()', function () {
+    var foo = function (x, y) {return x + y;},
+        bar = miJs.function(foo).log();
+
+    deepEqual(bar.log, [], 'Добавление логирования');
+
+    equal(bar(1, 2), 3, 'Функция после добавления логирования работает так же');
+
+    deepEqual(bar.log, [{args:{'0':1, '1':2}, ret:3}], 'Содержимого лога изменилось');
+
+    equal(bar(41, 1), 42, 'Функция продолжает работать');
+
+    deepEqual(bar.log, [{args:{'0':1, '1':2}, ret:3}, {args:{'0': 41, '1': 1}, ret:42}], 'Содержимого лога изменилось');
+
+    deepEqual(miJs.function(foo, true).clone().log().result.log, [], 'Работа в цепочке');
+});
+
+test('clone()', function () {
+    var foo = function (x, y) {return x + y;},
+        bar = miJs.function(foo).clone();
+
+    equal(foo(3, 4), bar(3, 4), 'На одинаковых результатах функции выдают один и тот же результат');
+
+    bar = undefined;
+
+    equal(foo(41, 1), 42, 'Изменения копии не влияют на исходную');
+
+    bar = miJs.function(foo).clone();
+
+    foo = undefined;
+
+    equal(bar(41, 2), 43, 'Изменения исходной не влиют на копию');
+
+    foo = function(x, y) {return x + y;};
+
+    equal(miJs.function(foo, true).clone()['result'](41, 2), 43, 'Работа в цепочке');
+});
+
 
 
 

@@ -817,9 +817,6 @@ miJs = miniJs = function () {
 		    	return currentFunction.apply({}, arguments)
 		    };
 		    var r;
-		    for(var i in currentFunction) {
-		        temp[i] = miJs(currentFunction[i]).clone();
-            }
 		    return chainFlag ? (r = miJs.function(temp, true), r.result = temp, r) : temp;
 		};
 
@@ -843,16 +840,17 @@ miJs = miniJs = function () {
 			var r, arrayLink = Array.prototype.slice.call(arguments),
 			    ret = function (object) {
 					var listArgs = [],
-					    buildArrguments = function (obj, parrentKey) {
+					    buildArguments = function (obj, parentKey) {
 							miJs.object(obj, true).keys().array().each(function (el) {
-								var index = arrayLink.indexOf(parrentKey + el)
-								if (index !== -1)
+								var index = arrayLink.indexOf(parentKey + el);
+								if (index !== -1) {
 									listArgs[index] = obj[el];
-								else
-									buildArrguments(obj[el], parrentKey + el + '.');
+                                } else {
+									buildArguments(obj[el], parentKey + el + '.');
+                                }
 							});
 						};
-					buildArrguments(object, '');
+					buildArguments(object, '');
 					return currentFunction.apply(this, listArgs);
 				};
 			return chainFlag ? (r = miJs.function(ret, true), r.result = ret, r) : ret;
