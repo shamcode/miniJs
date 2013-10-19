@@ -863,7 +863,8 @@ miJs = miniJs = function () {
 		*	@returns {Function}
 		*/
 		this.profile = function() {
-			var r, ret = function () {
+			var r,
+                ret = function () {
 					var startTime = new Date().getTime(),
 						value = currentFunction.apply(this, arguments),
 						timing = new Date().getTime() - startTime;
@@ -880,13 +881,17 @@ miJs = miniJs = function () {
 					return Math.min.apply(Math, ret.time.all);
 				},
 				middle : function () {
-					return miJs.array(ret.time.all).reduce(function(old, i){return old + i;}, 0) / ret.time.all.length;
+					var sumDuration = 0;
+                    for (var i = 0, len = ret.time.all.length; i < len; i++) {
+                        sumDuration += ret.time.all[i];
+                    }
+                    return sumDuration / len;
 				},
 				all : []
-			}
+			};
 			ret.count = 0;
 			return chainFlag ? (r = miJs.function(ret, true), r.result = ret, r) : ret;
-		}
+		};
 
 		/**
 		*
@@ -946,13 +951,14 @@ miJs = miniJs = function () {
 		this.lambda = function() {
 		    var args = [],
 			    expr = currentString,
-			    func;
+			    exprArgs;
 		    if (/\s*:\s*/.test(expr) != null) {
 	            exprArgs = currentString.split(/\s*:\s*/);
 	            args = exprArgs[0].split(/\s*,\s*|\s+/m);
 	            expr = exprArgs.slice(1).join(':');
-		    } else
+		    } else {
 		        throw "String '" + currentString + "' can\'t convert to Function";
+            }
 		    return new Function(args, 'return (' + expr + ')');
 		}
 	}

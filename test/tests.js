@@ -475,6 +475,88 @@ test('clone()', function () {
     equal(miJs.function(foo, true).clone()['result'](41, 2), 43, 'Работа в цепочке');
 });
 
+test('objectArgument()', function () {
+    var foo = function (x0, y0, x1, y1, d) {
+            return d * d == (Math.pow(x0 - x1, 2) + Math.pow(y0 - y1, 2))
+        },
+        bar = miJs.function(foo).objectArgument('first.x', 'first.y', 'second.x', 'second.y', 'd');
+
+    equal(foo(0, 0, 0, 1, 1),
+        bar({
+            first: {x: 0, y: 0},
+            second: {x: 0, y: 1},
+            d: 1
+        }),
+        'Простая проверка'
+    );
+
+    ok(!bar({
+        first: {x: 0, y: 0},
+        second: {x: 1, y: 1},
+        d: 1
+    }), 'Проверка 2');
+
+    bar = miJs
+        .function(foo, true)
+        .clone()
+        .objectArgument('a.x', 'a.y', 'b.x', 'b.y', 'c')
+        .result;
+
+    ok(bar({
+        a: {x: 1, y: 2},
+        b: {x: 4, y: 6},
+        c: 5
+    }), 'Работа в цепочке');
+});
+
+test('profile()', function () {
+    var foo = function (n) {
+            for (var i = 0, res = 0; i < n; i++, res+=i) {}
+            return res;
+        },
+        bar = miJs.function(foo).profile();
+
+    equal(bar.count, 0, 'Пока ни одного вызова');
+
+    deepEqual(bar.time.all, [], 'Пустая история вызовов');
+
+    equal(foo(1000), bar(1000), 'Функция продолжает корректно работать');
+
+    equal(bar.count, 1, 'Один вызов');
+
+    bar = miJs.function(foo, true).clone().profile().chain();
+
+    equal(bar.count, 0, 'Работа в цепочке (1)');
+
+    deepEqual(bar.time.all, [], 'Работа в цепочке (2)');
+});
+
+test('externCall()', function () {
+    var foo = function (x) {return 2 * x;},
+        tmp;
+
+    miJs.function(foo).externCall(function (f) {tmp = f(4); return tmp;});
+
+    equal(tmp, 8, 'Без копирования результата');
+
+    equal(miJs.function(foo).externCall(function (f) {tmp = f(4); return tmp;}, true).result, 8, 'С копированием результата');
+
+    equal(miJs.function(foo, true).clone().externCall(function (f) {tmp = f(4); return tmp;}, true).result, 8, 'Работа в цепочке');
+});
+
+
+module('miJs.string');
+
+test('lambda()', function () {
+    var lambda = function (s) {return miJs.string(s).lambda();},
+        foo = function (x) {return x * 4;};
+
+    equal(lambda('x: x * 3')(6), 18, 'Один аргумент');
+    equal(lambda('x, y: x + y +1')(2, 3), 6, 'Два аргумента');
+    ok(lambda('x, y, z: x > y && y > z')(3, 2, 1), 'Три аргумента');
+    equal(lambda('x: x(4)')(foo), 16, 'Аргумент функция')
+});
+
 
 
 
