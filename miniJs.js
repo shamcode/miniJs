@@ -435,7 +435,7 @@ miJs = miniJs = function () {
 		* @param {Boolean}  [flagCopyResult]
 		* @returns this
 		*/
-		this.externCall = function(cb, flagCopyResult) {
+		this.external = function(cb, flagCopyResult) {
 			currentObject = this.result || currentObject;
 			var result = cb(currentObject);
 			if (flagCopyResult)
@@ -567,7 +567,7 @@ miJs = miniJs = function () {
 		*
 		* @returns {Array}
 		*/
-		this.uniq = function() {
+		this.distinct = function() {
 			currentArray = this.result || currentArray;
 			var result = [];
 			for (var el = 0; el < currentArray.length; el++) {
@@ -707,7 +707,7 @@ miJs = miniJs = function () {
 		* @param {Boolean}  [flagCopyResult]
 		* @returns this
 		*/
-		this.externCall = function(cb, flagCopyResult) {
+		this.external = function(cb, flagCopyResult) {
 			currentArray = this.result || currentArray;
 			var result = cb(currentArray);
 			if (flagCopyResult) {
@@ -902,7 +902,7 @@ miJs = miniJs = function () {
 		* @param {Boolean}  [flagCopyResult]
 		* @returns this
 		*/
-		this.externCall = function(cb, flagCopyResult) {
+		this.external = function(cb, flagCopyResult) {
 			var result = cb(currentFunction),
 				r      = miJs.function(result, chainFlag); 
 			if (flagCopyResult)

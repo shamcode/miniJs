@@ -258,12 +258,12 @@ test('externCall()', function () {
             return 5;
         };
 
-    miJs.object(foo).externCall(callBack);
+    miJs.object(foo).external(callBack);
     equal(foo.x, 3, 'Без копирования результата');
 
-    equal(miJs.object(foo).externCall(callBack, true).result, 5, 'С копированием результата');
+    equal(miJs.object(foo).external(callBack, true).result, 5, 'С копированием результата');
 
-    equal(miJs.object(foo, true).clone().externCall(callBack, true).result, 5, 'Работа в цепочке');
+    equal(miJs.object(foo, true).clone().external(callBack, true).result, 5, 'Работа в цепочке');
 });
 
 
@@ -322,8 +322,8 @@ test('filter()', function () {
 test('uniq()', function () {
     var foo = [0, 1, 3, 1, 2, 3, 4, 5, 6, 7, 6, 6, 7, 8, 9, 0];
 
-    deepEqual(miJs.array(foo).uniq(), [0, 1, 3, 2, 4, 5, 6, 7, 8, 9], 'Простая проверка');
-    deepEqual(miJs.array(foo, true).clone().uniq().result, [0, 1, 3, 2, 4, 5, 6, 7, 8, 9], 'Работа в цепочке');
+    deepEqual(miJs.array(foo).distinct(), [0, 1, 3, 2, 4, 5, 6, 7, 8, 9], 'Простая проверка');
+    deepEqual(miJs.array(foo, true).clone().distinct().result, [0, 1, 3, 2, 4, 5, 6, 7, 8, 9], 'Работа в цепочке');
 });
 
 
@@ -401,12 +401,12 @@ test('externCall()', function () {
             return sum;
         };
 
-    miJs.array(foo).externCall(func);
+    miJs.array(foo).external(func);
     equal(tmp, 10, 'Простая проверка');
 
-    equal(miJs.array(foo).externCall(func, true).result, 10, 'С копированием результата');
+    equal(miJs.array(foo).external(func, true).result, 10, 'С копированием результата');
 
-    equal(miJs.array(foo, true).clone().externCall(func, true).result, 10, 'Работа в цепочке');
+    equal(miJs.array(foo, true).clone().external(func, true).result, 10, 'Работа в цепочке');
 });
 
 
@@ -535,13 +535,13 @@ test('externCall()', function () {
     var foo = function (x) {return 2 * x;},
         tmp;
 
-    miJs.function(foo).externCall(function (f) {tmp = f(4); return tmp;});
+    miJs.function(foo).external(function (f) {tmp = f(4); return tmp;});
 
     equal(tmp, 8, 'Без копирования результата');
 
-    equal(miJs.function(foo).externCall(function (f) {tmp = f(4); return tmp;}, true).result, 8, 'С копированием результата');
+    equal(miJs.function(foo).external(function (f) {tmp = f(4); return tmp;}, true).result, 8, 'С копированием результата');
 
-    equal(miJs.function(foo, true).clone().externCall(function (f) {tmp = f(4); return tmp;}, true).result, 8, 'Работа в цепочке');
+    equal(miJs.function(foo, true).clone().external(function (f) {tmp = f(4); return tmp;}, true).result, 8, 'Работа в цепочке');
 });
 
 
