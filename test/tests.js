@@ -248,7 +248,7 @@ test('key()', function () {
     equal(miJs.object(foo, true).clone().key(1).result, 'x', 'Работа в цепочке');
 });
 
-test('externCall()', function () {
+test('external()', function () {
     var foo = {
             x: 1,
             y: 2
@@ -319,7 +319,7 @@ test('filter()', function () {
 });
 
 
-test('uniq()', function () {
+test('distinct()', function () {
     var foo = [0, 1, 3, 1, 2, 3, 4, 5, 6, 7, 6, 6, 7, 8, 9, 0];
 
     deepEqual(miJs.array(foo).distinct(), [0, 1, 3, 2, 4, 5, 6, 7, 8, 9], 'Простая проверка');
@@ -389,7 +389,7 @@ test('reduce()', function () {
 });
 
 
-test('externCall()', function () {
+test('external()', function () {
     var foo = [1, 2, 3, 4],
         tmp,
         func = function(a) {
@@ -531,7 +531,7 @@ test('profile()', function () {
     deepEqual(bar.time.all, [], 'Работа в цепочке (2)');
 });
 
-test('externCall()', function () {
+test('external()', function () {
     var foo = function (x) {return 2 * x;},
         tmp;
 

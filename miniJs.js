@@ -538,7 +538,7 @@ miJs = miniJs = function () {
             }
 			var result = [];
 			for (var i = 0; i < currentArray.length; i++) {
-				result.push(f(currentArray[i]));
+				result.push(f(currentArray[i], i, currentArray));
             }
 			return chainFlag ? (this.result = result, this) : result;
 		};
@@ -556,14 +556,14 @@ miJs = miniJs = function () {
 				return chainFlag ? (this.result = currentArray.filter(f), this) : currentArray.filter(f);
 			var result = [];
 			for (var i = 0; i < currentArray.length; i++) 
-				if (f(currentArray[i])) 
+				if (f(currentArray[i], i, currentArray))
 					result.push(currentArray);
 			return chainFlag ? (this.result = result, this) : result;
 		};
 
 		/**
 		*
-		* Creates a new array will all elemets and no repeat
+		* Creates a new array will all elements and no repeat
 		*
 		* @returns {Array}
 		*/
@@ -616,7 +616,7 @@ miJs = miniJs = function () {
 				return chainFlag ? (currentArray.forEach(f), this) : currentArray.forEach(f);
             }
 			for (var i = 0; i < currentArray.length; i++) {
-				f(currentArray[i]);
+				f(currentArray[i], i, currentArray);
             }
 			if (chainFlag) {
 				return this;
@@ -692,7 +692,7 @@ miJs = miniJs = function () {
 				ret = currentArray.reduce(f, ret);
             } else {
 				for (var i = 0; i < currentArray.length; i++) {
-					ret = f(ret, currentArray[i]);
+					ret = f(ret, currentArray[i], i, currentArray);
                 }
             }
 			return chainFlag ? (this.result = ret, this) : ret;
