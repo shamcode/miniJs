@@ -270,7 +270,7 @@ test('external()', function () {
 module('miJs.array');
 
 test('clone()', function () {
-    var foo = [1, 2, {x:3}];
+    var foo = [1, 2, {x:3}],
         bar = miJs.array(foo).clone();
 
     deepEqual(foo, bar, 'Проверка клонирования');
@@ -306,6 +306,7 @@ test('map()', function () {
         func = function (x) {return x * x;};
 
     deepEqual(miJs.array(foo).map(func), [1, 4, 9], 'Простая проверка');
+    deepEqual(miJs.array(foo).map('e, i: e * i'), [0, 2, 6], 'Передача lambda строки');
     deepEqual(miJs.array(foo, true).clone().map(func).result, [1, 4, 9], 'Работа в цепочке');
 });
 
@@ -315,6 +316,7 @@ test('filter()', function () {
         func = function (x) {return x % 2 == 0; };
 
     deepEqual(miJs.array(foo).filter(func), [2, 4], 'Простая проверка');
+    deepEqual(miJs.array(foo).filter('e: e % 2 == 1'), [1, 3], 'Передача lambda строки');
     deepEqual(miJs.array(foo, true).clone().filter(func).result, [2, 4], 'Работа в цепочке')
 });
 
@@ -349,7 +351,7 @@ test('each()', function () {
 });
 
 
-test('value', function () {
+test('value()', function () {
     var foo = [1, 2, 'test'];
 
     equal(miJs.array(foo).value(0), 1, 'Простая проверка');
@@ -384,6 +386,8 @@ test('reduce()', function () {
     equal(miJs.array(foo).reduce(func, 0), 55, 'Простая проверка');
 
     equal(miJs.array(foo).reduce(func, 45), 100, 'Другое стартовое значение');
+
+    equal(miJs.array(foo).reduce('p, c: p + 2 * c', 0), 110, 'Передача lambda строки в качестве функции');
 
     equal(miJs.array(foo, true).clone().reduce(func, 0).result, 55, 'Работа в цепочке');
 });

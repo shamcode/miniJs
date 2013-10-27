@@ -528,11 +528,14 @@ miJs = miniJs = function () {
 		*
 		* Iteration run functions for all elements in array and return array of result
 		*
-		* @param   {Function}     f Callback
+		* @param   {Function|String}     f Callback
 		* @returns {Array|Object} Results function f
 		*/
 		this.map = function(f) {
 			currentArray = this.result || currentArray;
+            if (typeof f == 'string') {
+                f = miJs.string(f).lambda();
+            }
 			if (currentArray.map !== undefined) {
 				return chainFlag ? (this.result = currentArray.map(f), this) : currentArray.map(f);
             }
@@ -547,11 +550,14 @@ miJs = miniJs = function () {
 		*
 		* Creates a new array with all elements that pass the test implemented by the provided function.
 		* 
-		* @param   {Function} f Callback
+		* @param   {Function|String} f Callback
 		* @returns {Array}
 		*/
 		this.filter = function(f) {
 			currentArray = this.result || currentArray;
+            if (typeof f == 'string') {
+                f = miJs.string(f).lambda();
+            }
 			if (currentArray.filter !== undefined) 
 				return chainFlag ? (this.result = currentArray.filter(f), this) : currentArray.filter(f);
 			var result = [];
@@ -612,6 +618,9 @@ miJs = miniJs = function () {
 		*/
 		this.each = function (f) {
 			currentArray = this.result || currentArray;
+            if (typeof f == 'string') {
+                f = miJs.string(f).lambda();
+            }
 			if (currentArray.forEach !== undefined) {
 				return chainFlag ? (currentArray.forEach(f), this) : currentArray.forEach(f);
             }
@@ -681,13 +690,16 @@ miJs = miniJs = function () {
 		*
 		* Reduce function
 		* 
-		* @param {Function} f
+		* @param {Function|String} f
 		* @param start
 		* @returns {*}
 		*/
 		this.reduce = function(f, start) {
 			currentArray = this.result || currentArray;
 			var ret = start;
+            if (typeof f == 'string') {
+                f = miJs.string(f).lambda();
+            }
 			if (currentArray.reduce) {
 				ret = currentArray.reduce(f, ret);
             } else {
