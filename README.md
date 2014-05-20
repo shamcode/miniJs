@@ -16,6 +16,9 @@ var b = miJs.object(a).clone()
 //Изменения в объекте a не повлекут за собой изменения в b:
 a.x = 3
 alert(b.x)
+
+var c = miJs([1, 2, 3, 4, 5]).filter('e: e > 2');
+//c == [3, 4, 5]
 ```
 ## Какие функции есть?
 Со списком функций и как работать с ними можно ознакомиться в [Wiki](https://github.com/shamcode/miniJs/wiki/Home)
